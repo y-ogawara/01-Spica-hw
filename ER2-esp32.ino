@@ -26,13 +26,13 @@ void setup() {
 }
 
 void loop() {
-  forward(255); // 正転
+  forward(100); // 正転
   delay(3000);
   coast();      // 空転
   delay(3000);
   reverse(100); // 逆転
   delay(3000);
-  brake();      // ブレーキ
+  coast();      // 空転
   delay(3000);
   Serial.print("Hello");
 }
