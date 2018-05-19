@@ -1,10 +1,10 @@
-/* 使うピンの定義 */
+// 使うピンの定義
 const int IN1 = 25;
 const int IN2 = 26;
 const int IN3 = 32;
 const int IN4 = 33;
 
-/* チャンネルの定義 */
+// チャンネルの定義
 const int CHANNEL_0 = 0;
 const int CHANNEL_1 = 1;
 const int CHANNEL_2 = 2;
@@ -13,6 +13,12 @@ const int CHANNEL_3 = 3;
 const int LEDC_TIMER_BIT = 8;   // PWMの範囲(8bitなら0〜255、10bitなら0〜1023)
 const int LEDC_BASE_FREQ = 490; // 周波数(Hz)
 const int VALUE_MAX = 255;      // PWMの最大値
+
+// wifiの設定
+const char SSID[] = "WiFi の SSID"
+const char PASSWORD[] = "WiFi のパスワード"
+
+WiFiServer server(80);
 
 void setup() {
   pinMode(IN1, OUTPUT); // IN1
@@ -31,6 +37,19 @@ void setup() {
   ledcAttachPin(IN2, CHANNEL_1);
   ledcAttachPin(IN3, CHANNEL_2);
   ledcAttachPin(IN4, CHANNEL_3);
+
+
+
+  WiFi.begin(SSID, PASSWORD);
+  Serial.print("WiFi connecting");
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
+    delay(100);
+  }
+  Serial.println(" connected");
+  Serial.print("HTTP Server: http://");
+  Serial.print(WiFi.localIP());
+  Serial.println("/");
 }
 
 void loop() {
@@ -64,6 +83,16 @@ void reverse(uint32_t pwm) {
   ledcWrite(CHANNEL_1, pwm);
   ledcWrite(CHANNEL_2, 0);
   ledcWrite(CHANNEL_3, pwm);
+}
+void left() {
+  if (pwm > VALUE_MAX) {
+    pwm = VALUE_MAX;
+  }
+  ledcWrite(CHANNEL_0, pwm);
+  ledcWrite(CHANNEL_1, 0);
+  ledcWrite(CHANNEL_2, pwm);
+  ledcWrite(CHANNEL_3, 0);
+
 }
 
 // ブレーキ
