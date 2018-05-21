@@ -15,10 +15,10 @@ const int LEDC_BASE_FREQ = 490; // 周波数(Hz)
 const int VALUE_MAX = 255;      // PWMの最大値
 
 // wifiの設定
-const char SSID[] = "WiFi の SSID"
-const char PASSWORD[] = "WiFi のパスワード"
+const char SSID[] = "WiFi の SSID";
+const char PASSWORD[] = "WiFi のパスワード";
 
-WiFiServer server(80);
+//WiFiServer server(80);
 
 void setup() {
   pinMode(IN1, OUTPUT); // IN1
@@ -40,42 +40,42 @@ void setup() {
 
 
 
-  WiFi.begin(SSID, PASSWORD);
-  Serial.print("WiFi connecting");
-  while (WiFi.status() != WL_CONNECTED) {
-    Serial.print(".");
-    delay(100);
-  }
-  Serial.println(" connected");
-  Serial.print("HTTP Server: http://");
-  Serial.print(WiFi.localIP());
-  Serial.println("/");
+//  WiFi.begin(SSID, PASSWORD);
+//  Serial.print("WiFi connecting");
+//  while (WiFi.status() != WL_CONNECTED) {
+//    Serial.print(".");
+//    delay(100);
+//  }
+//  Serial.println(" connected");
+//  Serial.print("HTTP Server: http://");
+//  Serial.print(WiFi.localIP());
+//  Serial.println("/");
 }
 
 void loop() {
-  forward(100); // 正転
-  delay(3000);
-  coast();      // 空転
-  delay(3000);
-  reverse(100); // 逆転
-  delay(3000);
-  coast();      // 空転
-  delay(3000);
+  right(100);
+  delay(1000);
+  coast();
+  delay(1000);
+  
+  left(100);
+  delay(1000);
+  coast();
+  delay(1000);
+  
+  forward(100);
+  delay(1000);
+  coast();
+  delay(1000);
+  
+  reverse(100);
+  delay(1000);
+  coast();
+  delay(1000);
 }
 
 // 正転
 void forward(uint32_t pwm) {
-  if (pwm > VALUE_MAX) {
-    pwm = VALUE_MAX;
-  }
-  ledcWrite(CHANNEL_0, pwm);
-  ledcWrite(CHANNEL_1, 0);
-  ledcWrite(CHANNEL_2, pwm);
-  ledcWrite(CHANNEL_3, 0);
-}
-
-// 逆転
-void reverse(uint32_t pwm) {
   if (pwm > VALUE_MAX) {
     pwm = VALUE_MAX;
   }
@@ -84,7 +84,9 @@ void reverse(uint32_t pwm) {
   ledcWrite(CHANNEL_2, 0);
   ledcWrite(CHANNEL_3, pwm);
 }
-void left() {
+
+// 逆転
+void reverse(uint32_t pwm) {
   if (pwm > VALUE_MAX) {
     pwm = VALUE_MAX;
   }
@@ -92,7 +94,28 @@ void left() {
   ledcWrite(CHANNEL_1, 0);
   ledcWrite(CHANNEL_2, pwm);
   ledcWrite(CHANNEL_3, 0);
+}
 
+// 右回転
+void right(uint32_t pwm) {
+  if (pwm > VALUE_MAX) {
+    pwm = VALUE_MAX;
+  }
+  ledcWrite(CHANNEL_0, 0);
+  ledcWrite(CHANNEL_1, pwm);
+  ledcWrite(CHANNEL_2, VALUE_MAX);
+  ledcWrite(CHANNEL_3, VALUE_MAX);
+}
+
+// 左回転
+void left(uint32_t pwm) {
+  if (pwm > VALUE_MAX) {
+    pwm = VALUE_MAX;
+  }
+  ledcWrite(CHANNEL_0, VALUE_MAX);
+  ledcWrite(CHANNEL_1, VALUE_MAX);
+  ledcWrite(CHANNEL_2, 0);
+  ledcWrite(CHANNEL_3, pwm);
 }
 
 // ブレーキ
