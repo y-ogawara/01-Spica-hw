@@ -52,7 +52,7 @@ void setup() {
   ledcAttachPin(IN3, CHANNEL_2);
   ledcAttachPin(IN4, CHANNEL_3);
 
-
+  delay(100);
 
   WiFi.begin(SSID, PASSWORD);
   Serial.print("WiFi connecting");
@@ -64,7 +64,7 @@ void setup() {
   Serial.print("HTTP Server: http://");
   Serial.print(WiFi.localIP());
   Serial.println("/");
-
+  
   server.begin();
 }
 
@@ -108,11 +108,13 @@ void loop() {
             client.println("<html>");
             client.println("<body>");
             client.println("<form method='get'>");
-            client.println("<font size='4'>test<br>");
-            client.println("ESP32-Wi-Fi</font><br>");
+            client.println("<h1>ESP32-Wi-Fi</h1>");
             client.println("<br>");
-            client.println("<input type='submit' name=0 value='ON'>");
-            client.println("<input type='submit' name=1 value='OFF'>");
+            client.println("<h2>Command</h2>");
+            client.println("<input type='submit' name=0 value='FORWARD'>");
+            client.println("<input type='submit' name=1 value='BACK'>");
+            client.println("<input type='submit' name=2 value='RIGHT'>");
+            client.println("<input type='submit' name=3 value='LEFT'>");
             client.println("</form>");
             client.println("</body>");
             client.println("</html>");
@@ -126,11 +128,37 @@ void loop() {
           currentLine += c;
         }
  
-        if (currentLine.endsWith("GET /?0=ON")) {
-          digitalWrite(13, HIGH);
+        if (currentLine.endsWith("GET /?0")) {
+          Serial.println();
+          Serial.println("forward!");
+          forward(100);
+          delay(1000);
+          coast();
+          delay(1000);
         }
-        if (currentLine.endsWith("GET /?1=OFF")) {
-          digitalWrite(13, LOW);
+        if (currentLine.endsWith("GET /?1")) {
+          Serial.println();
+          Serial.println("BACK!");
+          reverse(100);
+          delay(1000);
+          coast();
+          delay(1000);
+        }
+        if (currentLine.endsWith("GET /?2")) {
+          Serial.println();
+          Serial.println("RIGHT!");
+          right(100);
+          delay(1000);
+          coast();
+          delay(1000);
+        }
+        if (currentLine.endsWith("GET /?3")) {
+          Serial.println();
+          Serial.println("LEFT!");
+          left(100);
+          delay(1000);
+          coast();
+          delay(1000);
         }
       }
     }
