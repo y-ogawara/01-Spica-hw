@@ -1,3 +1,15 @@
+#include <WiFi.h>
+#include <WiFiAP.h>
+#include <WiFiMulti.h>
+#include <WiFiUdp.h>
+#include <WiFiScan.h>
+#include <ETH.h>
+#include <WiFiClient.h>
+#include <WiFiSTA.h>
+#include <WiFiServer.h>
+#include <WiFiType.h>
+#include <WiFiGeneric.h>
+
 // 使うピンの定義
 const int IN1 = 25;
 const int IN2 = 26;
@@ -15,12 +27,14 @@ const int LEDC_BASE_FREQ = 490; // 周波数(Hz)
 const int VALUE_MAX = 255;      // PWMの最大値
 
 // wifiの設定
-const char SSID[] = "WiFi の SSID";
-const char PASSWORD[] = "WiFi のパスワード";
+const char SSID[] = "ayushio";
+const char PASSWORD[] = "password";
 
-//WiFiServer server(80);
+WiFiServer server(80);
 
 void setup() {
+  Serial.begin(115200);
+  Serial.print("setup start!");
   pinMode(IN1, OUTPUT); // IN1
   pinMode(IN2, OUTPUT); // IN2
   pinMode(IN3, OUTPUT); // IN3
@@ -40,38 +54,90 @@ void setup() {
 
 
 
-//  WiFi.begin(SSID, PASSWORD);
-//  Serial.print("WiFi connecting");
-//  while (WiFi.status() != WL_CONNECTED) {
-//    Serial.print(".");
-//    delay(100);
-//  }
-//  Serial.println(" connected");
-//  Serial.print("HTTP Server: http://");
-//  Serial.print(WiFi.localIP());
-//  Serial.println("/");
+  WiFi.begin(SSID, PASSWORD);
+  Serial.print("WiFi connecting");
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
+    delay(100);
+  }
+  Serial.println(" connected");
+  Serial.print("HTTP Server: http://");
+  Serial.print(WiFi.localIP());
+  Serial.println("/");
+
+  server.begin();
 }
 
 void loop() {
-  right(100);
-  delay(1000);
-  coast();
-  delay(1000);
-  
-  left(100);
-  delay(1000);
-  coast();
-  delay(1000);
-  
-  forward(100);
-  delay(1000);
-  coast();
-  delay(1000);
-  
-  reverse(100);
-  delay(1000);
-  coast();
-  delay(1000);
+//  right(100);
+//  delay(1000);
+//  coast();
+//  delay(1000);
+//  
+//  left(100);
+//  delay(1000);
+//  coast();
+//  delay(1000);
+//  
+//  forward(100);
+//  delay(1000);
+//  coast();
+//  delay(1000);
+//  
+//  reverse(100);
+//  delay(1000);
+//  coast();
+//  delay(1000);
+
+  WiFiClient client = server.available();
+ 
+  if (client) {
+    Serial.println("new client");
+    String currentLine = "";
+    while (client.connected()) {
+      if (client.available()) {
+        char c = client.read();
+        Serial.write(c);
+        if (c == '\n') {
+          if (currentLine.length() == 0) {
+            client.println("HTTP/1.1 200 OK");
+            client.println("Content-type:text/html");
+            client.println();
+ 
+            client.println("<!DOCTYPE html>");
+            client.println("<html>");
+            client.println("<body>");
+            client.println("<form method='get'>");
+            client.println("<font size='4'>test<br>");
+            client.println("ESP32-Wi-Fi</font><br>");
+            client.println("<br>");
+            client.println("<input type='submit' name=0 value='ON'>");
+            client.println("<input type='submit' name=1 value='OFF'>");
+            client.println("</form>");
+            client.println("</body>");
+            client.println("</html>");
+ 
+            client.println();
+            break;
+          } else {
+            currentLine = "";
+          }
+        } else if (c != '\r') {
+          currentLine += c;
+        }
+ 
+        if (currentLine.endsWith("GET /?0=ON")) {
+          digitalWrite(13, HIGH);
+        }
+        if (currentLine.endsWith("GET /?1=OFF")) {
+          digitalWrite(13, LOW);
+        }
+      }
+    }
+     
+    client.stop();
+    Serial.println("client disonnected");
+  }
 }
 
 // 正転
