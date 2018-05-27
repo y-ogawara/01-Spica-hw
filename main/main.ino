@@ -1,14 +1,15 @@
+#include <ETH.h>
 #include <WiFi.h>
 #include <WiFiAP.h>
-#include <WiFiMulti.h>
-#include <WiFiUdp.h>
-#include <WiFiScan.h>
-#include <ETH.h>
 #include <WiFiClient.h>
-#include <WiFiSTA.h>
-#include <WiFiServer.h>
-#include <WiFiType.h>
 #include <WiFiGeneric.h>
+#include <WiFiMulti.h>
+#include <WiFiScan.h>
+#include <WiFiServer.h>
+#include <WiFiSTA.h>
+#include <WiFiType.h>
+#include <WiFiUdp.h>
+
 
 // 使うピンの定義
 const int IN1 = 25;
@@ -27,8 +28,8 @@ const int LEDC_BASE_FREQ = 490; // 周波数(Hz)
 const int VALUE_MAX = 255;      // PWMの最大値
 
 // wifiの設定
-const char SSID[] = "ayushio";
-const char PASSWORD[] = "password";
+const char SSID[] = "ERS-AP";
+const char PASSWORD[] = "1234567890";
 
 WiFiServer server(80);
 
@@ -69,25 +70,6 @@ void setup() {
 }
 
 void loop() {
-//  right(100);
-//  delay(1000);
-//  coast();
-//  delay(1000);
-//  
-//  left(100);
-//  delay(1000);
-//  coast();
-//  delay(1000);
-//  
-//  forward(100);
-//  delay(1000);
-//  coast();
-//  delay(1000);
-//  
-//  reverse(100);
-//  delay(1000);
-//  coast();
-//  delay(1000);
 
   WiFiClient client = server.available();
  
