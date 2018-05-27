@@ -111,40 +111,28 @@ void loop() {
         }
  
         if (currentLine.endsWith("GET /?0")) {
-          Serial.println();
-          Serial.println("forward!");
           forward(100);
           delay(1000);
-          coast();
-          delay(1000);
+          brake();
+
         }
         if (currentLine.endsWith("GET /?1")) {
-          Serial.println();
-          Serial.println("BACK!");
           reverse(100);
           delay(1000);
-          coast();
-          delay(1000);
+          brake();
         }
         if (currentLine.endsWith("GET /?2")) {
-          Serial.println();
-          Serial.println("RIGHT!");
           right(100);
           delay(1000);
-          coast();
-          delay(1000);
+          brake();
         }
         if (currentLine.endsWith("GET /?3")) {
-          Serial.println();
-          Serial.println("LEFT!");
           left(100);
           delay(1000);
-          coast();
-          delay(1000);
+          brake();
         }
       }
     }
-     
     client.stop();
     Serial.println("client disonnected");
   }
