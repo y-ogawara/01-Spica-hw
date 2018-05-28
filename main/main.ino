@@ -24,13 +24,14 @@ const char SSID[] = "ERS-AP";
 const char PASSWORD[] = "1234567890";
 const int localPort = 10000; // ポート番号
 
-IPAddress local_IP(192, 168, 0, 75);
+IPAddress local_IP(192, 168, 0, 76);
 IPAddress gateway(192, 168, 0, 1);
 IPAddress subnet(255, 255, 255, 0);
 
 WiFiUDP udp;
 char packetBuffer[UDP_TX_PACKET_MAX_SIZE];
-String cmd_s[UDP_TX_PACKET_MAX_SIZE] = {"\0"};
+String cmd_plus_split[UDP_TX_PACKET_MAX_SIZE] = {"\0"};
+String cmd_and_split[UDP_TX_PACKET_MAX_SIZE] = {"\0"};
 
 int split(String data, char delimiter, String *dst){
     int index = 0;
@@ -118,48 +119,101 @@ void loop(){
     // 実際にパケットを読む
     udp.read(packetBuffer,UDP_TX_PACKET_MAX_SIZE);
     Serial.println("Contents:");
-    //Serial.println(packetBuffer);
+    Serial.println(packetBuffer);
 
-    //packetBufferをstrip
+    
+    split(packetBuffer,'+',cmd_plus_split);
 
-//    int index = split(packetBuffer, '&', cmd_s);
-//    for(int i=0; i < index; i++){
-//      Serial.println(cmd_s[i]);
-//    }
-//    cmd_s[UDP_TX_PACKET_MAX_SIZE]= {"\0"};
+    int i = 0;
+    while(true) {
+      if (cmd_plus_split[i] == "\0") {
+        break;
+      }
+      split(cmd_plus_split[i],'&',cmd_and_split);
+
+      /* 配列の中身
+       *  0 = 空
+       *  1 = 動きの内容
+       *  2 = 左パワー
+       *  3 = 右パワー
+       *  4 = 時間
+       */
+      for (int j = 0; j < 5; j++) {
+        
+        Serial.println(cmd_and_split[j]);
+      }
+      String command = cmd_and_split[1];
+      int left_power = cmd_and_split[2].toInt();
+      int right_power = cmd_and_split[3].toInt();
+      int time = cmd_and_split[4].toInt();
+      
+      guruguru_motor(command,left_power,right_power,time);
+        
+      //配列データ削除
+      memset( cmd_and_split,'\0',UDP_TX_PACKET_MAX_SIZE);  
+      i++;
+    }
+
+
+    // データ削除
+    int packetBuffer_length = strlen(packetBuffer);
+    memset( packetBuffer,'\0',packetBuffer_length);
+    memset( cmd_plus_split,'\0',UDP_TX_PACKET_MAX_SIZE);
+    memset( cmd_and_split,'\0',UDP_TX_PACKET_MAX_SIZE);
   }
 }
 
-//void powerRegulator(String command, uint32_t pwm, float time) {
-//  for (int i = 30; i < pwm; i=i+1 ) {
-//            forward(i);
-//            delay(100);
-//  }
-//}
-
-// 正転
-void forward(uint32_t pwm)
-{
-    if (pwm > VALUE_MAX)
-    {
-        pwm = VALUE_MAX;
+// 命名 中里見
+void guruguru_motor(String command, uint32_t left_pwm, uint32_t right_pwm, int time) {
+  
+    if (command.equals("forward")) {
+      forward(left_pwm,right_pwm);
     }
-    ledcWrite(CHANNEL_0, 0);
-    ledcWrite(CHANNEL_1, pwm);
-    ledcWrite(CHANNEL_2, 0);
-    ledcWrite(CHANNEL_3, pwm);
+    else if (command.equals("left")) {
+      left(left_pwm);
+    }
+    else if (command.equals("right")) {
+      right(right_pwm);
+    }
+    else if (command.equals("back")) {
+      back(left_pwm,right_pwm);
+    }
+  delay(time);
+  coast();
+  
 }
 
-// 逆転
-void reverse(uint32_t pwm)
+
+
+void forward(uint32_t left_pwm,uint32_t right_pwm)
 {
-    if (pwm > VALUE_MAX)
+    if (left_pwm > VALUE_MAX)
     {
-        pwm = VALUE_MAX;
+        left_pwm = VALUE_MAX;
     }
-    ledcWrite(CHANNEL_0, pwm);
+    if (right_pwm > VALUE_MAX)
+    {
+        right_pwm = VALUE_MAX;
+    }
+    ledcWrite(CHANNEL_0, 0);
+    ledcWrite(CHANNEL_1, left_pwm);
+    ledcWrite(CHANNEL_2, 0);
+    ledcWrite(CHANNEL_3, right_pwm);
+}
+
+void back(uint32_t left_pwm,uint32_t right_pwm)
+{
+    if (left_pwm > VALUE_MAX)
+    {
+        left_pwm = VALUE_MAX;
+    }
+    if (right_pwm > VALUE_MAX)
+    {
+        right_pwm = VALUE_MAX;
+    }
+    ledcWrite(CHANNEL_0, left_pwm);
     ledcWrite(CHANNEL_1, 0);
-    ledcWrite(CHANNEL_2, pwm);
+    ledcWrite(CHANNEL_2, right_pwm);
     ledcWrite(CHANNEL_3, 0);
 }
 
@@ -206,3 +260,4 @@ void coast()
     ledcWrite(CHANNEL_2, 0);
     ledcWrite(CHANNEL_3, 0);
 }
+
