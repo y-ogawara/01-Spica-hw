@@ -6,8 +6,8 @@
 // 使うピンの定義
 const int IN1 = 25;
 const int IN2 = 26;
-const int IN3 = 32;
-const int IN4 = 33;
+const int IN3 = 16;
+const int IN4 = 17;
 
 // チャンネルの定義
 const int CHANNEL_0 = 0;
