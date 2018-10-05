@@ -23,9 +23,9 @@ Motor::Motor()
     delay(100);
 }
 
-void Motor::run_motor(String command, uint32_t left_pwm, uint32_t right_pwm, int time)
+void Motor::run_motor(String state, uint32_t left_pwm, uint32_t right_pwm, int time)
 {
-    if (command.equals(""))
+    if (state.equals(""))
     {
     }
     //TODO forward, left, right, backごとにコマンドチェック -> 実行
