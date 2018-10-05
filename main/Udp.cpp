@@ -5,10 +5,18 @@
 
 Udp::Udp()
 {
+  IPAddress local_IP(192, 168, 0, 76);
+  IPAddress gateway(192, 168, 0, 1);
+  IPAddress subnet(255, 255, 255, 0);
+  
   WiFi.config(local_IP, gateway, subnet);
   delay(100);
 
-  WiFi.begin(SSID, PASSWORD);
+  char ssid[] = "ERS-AP";
+  char password[] = "1234567890";
+  int local_port = 10000; // ポート番号
+
+  WiFi.begin(ssid, password);
   delay(100);
 
   Serial.print("WiFi connecting");
@@ -21,9 +29,9 @@ Udp::Udp()
   Serial.println(WiFi.localIP());
 
   Serial.println("Starting UDP");
-  wifi_udp.begin(LOCAL_PORT); // UDP通信の開始(引数はポート番号)
+  wifi_udp.begin(local_port); // UDP通信の開始(引数はポート番号)
   Serial.print("Local port: ");
-  Serial.println(LOCAL_PORT);
+  Serial.println(local_port);
 }
 
 void Udp::recieve_packet()

@@ -11,13 +11,6 @@ class Udp
 {
   private:
     // wifiの設定
-    const char SSID[] = "ERS-AP";
-    const char PASSWORD[] = "1234567890";
-    const int LOCAL_PORT = 10000; // ポート番号
-
-    IPAddress local_IP(192, 168, 0, 76);
-    IPAddress gateway(192, 168, 0, 1);
-    IPAddress subnet(255, 255, 255, 0);
 
     WiFiUDP wifi_udp;
     char packet_buffer[UDP_TX_PACKET_MAX_SIZE];
