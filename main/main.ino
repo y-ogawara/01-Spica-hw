@@ -3,7 +3,9 @@
 #include "Sensor.h"
 
 Motor motor;
-Udp udp;
+char ssid[] = "aaa";
+char password[] = "";
+static Udp udp = Udp(ssid,password,"");
 Sensor sensor;
 
 void setup()
@@ -13,7 +15,6 @@ void setup()
     Serial.print("setup start!");
 
     motor = Motor();
-    udp = Udp();
     sensor = Sensor();
 }
 

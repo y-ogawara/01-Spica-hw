@@ -8,6 +8,7 @@
 #define UDP_TX_PACKET_MAX_SIZE 500
 
 class Udp
+
 {
   private:
     // wifiの設定
@@ -18,8 +19,9 @@ class Udp
     String cmd_and_split[UDP_TX_PACKET_MAX_SIZE] = {"\0"};
 
   public:
-    Udp();
+    Udp(char ssid[], char password[], String ip);
     void recieve_packet();
+    void send_data(char ip_send[],String text);
 };
 
 #endif
