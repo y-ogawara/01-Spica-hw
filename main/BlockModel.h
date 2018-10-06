@@ -6,16 +6,17 @@
 class BlockModel
 {
 private:
-  String block_state;
-  int right_speed;
+  int block_state;
   int left_speed;
+  int right_speed;
   int time;
   int loop_count;
 
 public:
-  BlockModel(String block_state, int right_speed, int left_speed, int time);
-  String get_block_state();
-  void set_block_state(String block_state);
+  BlockModel();
+  BlockModel(int block_state, int right_speed, int left_speed, int time);
+  int get_block_state();
+  void set_block_state(int block_state);
   int get_right_speed();
   void set_right_speed(int right_speed);
   int get_left_speed();

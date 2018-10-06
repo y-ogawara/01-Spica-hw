@@ -1,7 +1,8 @@
 #include "Arduino.h"
 #include "BlockModel.h"
 
-BlockModel::BlockModel(String block_state, int right_speed, int left_speed, int time)
+BlockModel::BlockModel(){}
+BlockModel::BlockModel(int block_state, int right_speed, int left_speed, int time)
 {
     set_block_state(block_state);
     set_right_speed(right_speed);
@@ -9,12 +10,12 @@ BlockModel::BlockModel(String block_state, int right_speed, int left_speed, int 
     set_time(time);
 }
 
-String BlockModel::get_block_state()
+int BlockModel::get_block_state()
 {
     return this->block_state;
 }
 
-void BlockModel::set_block_state(String block_state)
+void BlockModel::set_block_state(int block_state)
 {
     this->block_state = block_state;
 }
