@@ -1,17 +1,16 @@
-#include "Arduino.h"
 #include "Udp.h"
+#include "Arduino.h"
 #include <WiFi.h>
 #include <WiFiUdp.h>
 
-WiFiUDP udp;
-int local_port = 10000; // ポート番号
+Udp::Udp(){}
 
-Udp::Udp(char ssid[], char password[], String ip)
+void Udp::setup_udp(char ssid[], char password[], String ip)
 {
-  IPAddress local_IP(192, 168, 0, 76);
+  IPAddress local_IP(192, 168, 1, 19);
   IPAddress gateway(192, 168, 0, 1);
   IPAddress subnet(255, 255, 255, 0);
-  
+
   WiFi.config(local_IP, gateway, subnet);
   delay(100);
 
@@ -27,26 +26,49 @@ Udp::Udp(char ssid[], char password[], String ip)
   Serial.println(" connected");
   Serial.println(WiFi.localIP());
 
-  // Serial.println("Starting UDP");
-  // wifi_udp.begin(local_port); // UDP通信の開始(引数はポート番号)
-  // Serial.print("Local port: ");
-  // Serial.println(local_port);
+   Serial.println("Starting UDP");
+   wifi_udp.begin(local_port); // UDP通信の開始(引数はポート番号)
+   Serial.print("Local port: ");
+   Serial.println(local_port);
 }
 
 void Udp::recieve_packet()
 {
   int packet_size = wifi_udp.parsePacket();
+  
   if (packet_size)
   {
     //UDP情報の表示
-    Serial.print(packet_size);
-    IPAddress remote = wifi_udp.remoteIP();
+    Serial.print("Received packet of size ");
+    Serial.println(packet_size);
+
+    // 実際にパケットを読む
+    wifi_udp.read(packet_buffer, UDP_TX_PACKET_MAX_SIZE);
+    Serial.println("Contents:");
+    Serial.println(packet_buffer);
   }
 }
 
-void Udp::send_data(char ip_send[],String text){
-  wifi_udp.beginPacket(ip_send,local_port);
-  wifi_udp.print(text);
+String Udp::get_packet_buffer()
+{
+  return String(this->packet_buffer);
+}
+
+void Udp::clear_packet_buffer()
+{
+  int packetBuffer_length = strlen(this->packet_buffer);
+  memset(this->packet_buffer ,'\0',packetBuffer_length);
+}
+
+void Udp::send_data(IPAddress ip_send,String text)
+{ 
+  Serial.print("send...");
+  IPAddress remote_ip(192, 168, 1, 10);
+  char remote[] = "192.168.1.10";
+  //char message[] = "test";
+  
+  wifi_udp.beginPacket(remote, local_port);
+  wifi_udp.printf("from ESP8266\r\n");
   wifi_udp.endPacket();
   delay(1000);
 }
