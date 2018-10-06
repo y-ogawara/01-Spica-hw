@@ -3,9 +3,7 @@
 #include "Sensor.h"
 
 Motor motor;
-char ssid[] = "aaa";
-char password[] = "";
-static Udp udp = Udp(ssid,password,"");
+Udp udp;
 Sensor sensor;
 
 void setup()
@@ -14,11 +12,16 @@ void setup()
 
     Serial.print("setup start!");
 
-    motor = Motor();
-    sensor = Sensor();
+    char ssid[] = "robop-WiFi-n";
+    char password[] = "robop0304";
+    udp.setup_udp(ssid, password, "");
+//
+//    IPAddress send_IP(192, 168, 1, 24);
+//    String text = "test";
+//    udp.send_data(send_IP, text);
 }
 
 void loop()
 {
-    udp.recieve_packet();
+  udp.recieve_packet();
 }
