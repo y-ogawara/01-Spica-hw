@@ -24,7 +24,7 @@ private:
 
 public:
   Motor();
-  void run_motor(String state, uint32_t left_pwm, uint32_t right_pwm, int time);
+  void run_motor(int state, uint32_t left_pwm, uint32_t right_pwm, int time);
   void forward(uint32_t left_pwm, uint32_t right_pwm);
   void back(uint32_t left_pwm, uint32_t right_pwm);
   void right(uint32_t pwm);
