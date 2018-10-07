@@ -167,3 +167,86 @@ void block_split(BlockModel block_models[100], String text)
         block_models[i].set_time(block_time);
     }
 }
+
+void ifJudge(BlockModel block_models[100]) {
+
+    BlockModel true_blocks[100];
+    int true_count = 0;
+    BlockModel false_blocks[100];
+    int false_count = 0;
+    for (int i = 1; i < 100; i ++) {
+        if (100 < block_models[i].get_block_state() || block_models[i].get_block_state() < 200 ) {
+            true_blocks[true_count] = block_models[i];
+            true_blocks[true_count] = blockStateChange(true_blocks[true_count]);
+            true_count++;
+        } else if (200 < block_models[i].get_block_state() || block_models[i].get_block_state() < 300) {
+            false_blocks[false_count] = block_models[i];
+            false_blocks[true_count] = blockStateChange(false_blocks[false_count]);
+            false_count++;
+        }
+    }
+
+    if (block_models[0].get_if_comparison() == 1) {
+        if (block_models[0].get_if_threshold() < sensor.getDistance()) {
+            block_models = {};
+            block_models = true_blocks;
+            return;
+        } else {
+            block_models = {};
+            block_models = false_blocks;
+            return;
+        }
+
+    }else if (block_models[0].get_if_comparison() == 2) {
+        if (block_models[0].get_if_threshold() > sensor.getDistance()) {
+            block_models = {};
+            block_models = true_blocks;
+            return;
+        } else {
+            block_models = {};
+            block_models = false_blocks;
+            return;
+        }
+    }
+
+}
+BlockModel blockStateChange(BlockModel model) {
+    switch(model.get_block_state()){
+         case 101:
+         case 201:
+            model.set_block_state(1);
+            break;
+
+        case 102:
+        case 202:
+            model.set_block_state(2);
+            break;
+
+        case 103:
+        case 203:
+            model.set_block_state(3);
+            break;
+
+        case 104:
+        case 204:
+            model.set_block_state(4);
+            break;
+
+        case 105:
+        case 205:
+            model.set_block_state(5);
+            break;
+
+        case 106:
+        case 206:
+            model.set_block_state(6);
+            break;
+
+        case 109:
+        case 209:
+            model.set_block_state(9);
+            break;
+        
+     }
+     return model;
+}

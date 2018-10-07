@@ -52,10 +52,33 @@ void BlockModel::set_time(int time)
 
 int BlockModel::get_loop_count()
 {
-    return this->loop_count;
+    return this->time;
 }
 
 void BlockModel::set_loop_count(int loop_count)
 {
-    this->loop_count = loop_count;
+    this->time = loop_count;
+}
+
+int BlockModel::get_if_threshold()
+{
+    return this->time;
+}
+
+void BlockModel::set_if_threshold(int sensor_num)
+{
+    this->time = sensor_num;
+}
+
+
+int BlockModel::get_if_comparison()
+{
+    return this->left_speed;
+}
+// comparisonの値は1 or 2
+// 1は >
+// 2は <
+void BlockModel::set_if_comparison(int comparison)
+{
+    this->left_speed = comparison;
 }

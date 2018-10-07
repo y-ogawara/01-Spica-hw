@@ -10,7 +10,6 @@ private:
   int left_speed;
   int right_speed;
   int time;
-  int loop_count;
 
 public:
   BlockModel();
@@ -25,6 +24,10 @@ public:
   void set_time(int time);
   int get_loop_count();
   void set_loop_count(int loop_count);
+  int get_if_threshold();
+  void set_if_threshold(int sensor_num);
+  int get_if_comparison();
+  void set_if_comparison(int comparison);
 };
 
 #endif
