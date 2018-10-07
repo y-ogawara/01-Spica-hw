@@ -40,7 +40,10 @@ void setup()
 }
 
 void loop()
-{
+{  
+    float distance = sensor.getDistance();
+    Serial.print("距離:    ");
+    Serial.println(distance);
     udp.recieve_packet();
 
     String commands = udp.get_packet_buffer();
