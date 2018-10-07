@@ -24,10 +24,25 @@ Motor::Motor()
     delay(100);
 }
 
-void Motor::run_motor(String state, uint32_t left_pwm, uint32_t right_pwm, int time)
+void Motor::run_motor(int state, uint32_t left_pwm, uint32_t right_pwm, int time)
 {
-    if (state.equals(""))
+    switch(state)
     {
+      case 1:  //forward
+        forward(left_pwm, right_pwm);
+        break;
+
+      case 2:  //back
+        back(left_pwm, right_pwm);
+        break;
+
+      case 3: //left
+        left(left_pwm);
+        break;
+
+      case 4: //right
+        right(right_pwm);
+        break;
     }
     //TODO forward, left, right, backごとにコマンドチェック -> 実行
 
@@ -37,60 +52,68 @@ void Motor::run_motor(String state, uint32_t left_pwm, uint32_t right_pwm, int t
 
 void Motor::forward(uint32_t left_pwm, uint32_t right_pwm)
 {
-    if (left_pwm > VALUE_MAX)
-    {
-        left_pwm = VALUE_MAX;
-    }
-    if (right_pwm > VALUE_MAX)
-    {
-        right_pwm = VALUE_MAX;
-    }
-
-    ledcWrite(CHANNEL_0, 0);
-    ledcWrite(CHANNEL_1, left_pwm);
-    ledcWrite(CHANNEL_2, 0);
-    ledcWrite(CHANNEL_3, right_pwm);
+    Serial.println("前進");
+  
+//    if (left_pwm > VALUE_MAX)
+//    {
+//        left_pwm = VALUE_MAX;
+//    }
+//    if (right_pwm > VALUE_MAX)
+//    {
+//        right_pwm = VALUE_MAX;
+//    }
+//
+//    ledcWrite(CHANNEL_0, 0);
+//    ledcWrite(CHANNEL_1, left_pwm);
+//    ledcWrite(CHANNEL_2, 0);
+//    ledcWrite(CHANNEL_3, right_pwm);
 }
 
 void Motor::back(uint32_t left_pwm, uint32_t right_pwm)
 {
-    if (left_pwm > VALUE_MAX)
-    {
-        left_pwm = VALUE_MAX;
-    }
-    if (right_pwm > VALUE_MAX)
-    {
-        right_pwm = VALUE_MAX;
-    }
-
-    ledcWrite(CHANNEL_0, left_pwm);
-    ledcWrite(CHANNEL_1, 0);
-    ledcWrite(CHANNEL_2, right_pwm);
-    ledcWrite(CHANNEL_3, 0);
+      Serial.println("後退");
+  
+//    if (left_pwm > VALUE_MAX)
+//    {
+//        left_pwm = VALUE_MAX;
+//    }
+//    if (right_pwm > VALUE_MAX)
+//    {
+//        right_pwm = VALUE_MAX;
+//    }
+//
+//    ledcWrite(CHANNEL_0, left_pwm);
+//    ledcWrite(CHANNEL_1, 0);
+//    ledcWrite(CHANNEL_2, right_pwm);
+//    ledcWrite(CHANNEL_3, 0);
 }
 
 void Motor::right(uint32_t pwm)
 {
-    if (pwm > VALUE_MAX)
-    {
-        pwm = VALUE_MAX;
-    }
-    ledcWrite(CHANNEL_0, 0);
-    ledcWrite(CHANNEL_1, pwm);
-    ledcWrite(CHANNEL_2, VALUE_MAX);
-    ledcWrite(CHANNEL_3, VALUE_MAX);
+      Serial.println("右回転");
+  
+//    if (pwm > VALUE_MAX)
+//    {
+//        pwm = VALUE_MAX;
+//    }
+//    ledcWrite(CHANNEL_0, 0);
+//    ledcWrite(CHANNEL_1, pwm);
+//    ledcWrite(CHANNEL_2, VALUE_MAX);
+//    ledcWrite(CHANNEL_3, VALUE_MAX);
 }
 
 void Motor::left(uint32_t pwm)
 {
-    if (pwm > VALUE_MAX)
-    {
-        pwm = VALUE_MAX;
-    }
-    ledcWrite(CHANNEL_0, VALUE_MAX);
-    ledcWrite(CHANNEL_1, VALUE_MAX);
-    ledcWrite(CHANNEL_2, 0);
-    ledcWrite(CHANNEL_3, pwm);
+      Serial.println("左回転");
+  
+//    if (pwm > VALUE_MAX)
+//    {
+//        pwm = VALUE_MAX;
+//    }
+//    ledcWrite(CHANNEL_0, VALUE_MAX);
+//    ledcWrite(CHANNEL_1, VALUE_MAX);
+//    ledcWrite(CHANNEL_2, 0);
+//    ledcWrite(CHANNEL_3, pwm);
 }
 
 void Motor::brake()

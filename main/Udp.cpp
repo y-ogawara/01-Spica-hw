@@ -60,15 +60,12 @@ void Udp::clear_packet_buffer()
   memset(this->packet_buffer ,'\0',packetBuffer_length);
 }
 
-void Udp::send_data(IPAddress ip_send,String text)
+void Udp::send_data(char remote_ip[], char text[])
 { 
-  Serial.print("send...");
-  IPAddress remote_ip(192, 168, 1, 10);
-  char remote[] = "192.168.1.10";
-  //char message[] = "test";
+  Serial.println("send...");
   
-  wifi_udp.beginPacket(remote, local_port);
-  wifi_udp.printf("from ESP8266\r\n");
+  wifi_udp.beginPacket(remote_ip, local_port);
+  wifi_udp.printf(text);
   wifi_udp.endPacket();
   delay(1000);
 }
