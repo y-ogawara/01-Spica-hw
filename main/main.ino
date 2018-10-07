@@ -41,38 +41,6 @@ void setup()
 
 void loop()
 {  
-    
-    BlockModel block_models[100];
-    BlockModel model1 = BlockModel(7, 2, 100, 20);
-    BlockModel model2 = BlockModel(101, 100, 100, 2);
-    BlockModel model3 = BlockModel(102, 100, 100, 4);
-    BlockModel model4 = BlockModel(203, 100, 100, 4);
-    BlockModel model5 = BlockModel(204, 100, 100, 3);
-    BlockModel model6 = BlockModel(8, 100, 100, 0);
-
-    block_models[0] = model1;
-    block_models[1] = model2;
-    block_models[2] = model3;
-    block_models[3] = model4;
-    block_models[4] = model5;
-    block_models[5] = model6;
-
-    BlockModel return_blocks[100] = {};
-    ifJudge(return_blocks,block_models);
-    
-    Serial.println("egegegegegegegegegege");
-    for (int i = 0; i < 2; i++) {
-        Serial.print("default: state:   ");
-        Serial.println(return_blocks[i].get_block_state());
-        Serial.print("default: left_speed:   ");
-        Serial.println(return_blocks[i].get_left_speed());
-        Serial.print("default: right_speed:   ");
-        Serial.println(return_blocks[i].get_right_speed());
-        Serial.print("default: time:   ");
-        Serial.println(return_blocks[i].get_time());
-    }
-     delay(10000);
-    
 }
 
 // 参照渡しで実装してあります
