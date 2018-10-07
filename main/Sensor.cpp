@@ -32,7 +32,7 @@ float Sensor::getDistance() {
         if (t*0.017 > 300) {
             zeroNum++;
         } else {
-            distance = t*0.017;
+            distance += t*0.017;
         }
         delay(100);
     }
