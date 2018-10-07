@@ -10,6 +10,7 @@ class Sensor
 
     public:
     Sensor();
+    float getDistance();
 };
 
 #endif
