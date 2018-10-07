@@ -2,7 +2,7 @@
 #include "BlockModel.h"
 
 BlockModel::BlockModel(){}
-BlockModel::BlockModel(int block_state, int right_speed, int left_speed, int time)
+BlockModel::BlockModel(int block_state, int left_speed, int right_speed, int time)
 {
     set_block_state(block_state);
     set_right_speed(right_speed);

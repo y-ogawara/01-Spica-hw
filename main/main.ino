@@ -41,98 +41,38 @@ void setup()
 
 void loop()
 {  
-    float distance = sensor.getDistance();
-    Serial.print("距離:    ");
-    Serial.println(distance);
-    udp.recieve_packet();
+    
+    BlockModel block_models[100];
+    BlockModel model1 = BlockModel(7, 2, 100, 20);
+    BlockModel model2 = BlockModel(101, 100, 100, 2);
+    BlockModel model3 = BlockModel(102, 100, 100, 4);
+    BlockModel model4 = BlockModel(203, 100, 100, 4);
+    BlockModel model5 = BlockModel(204, 100, 100, 3);
+    BlockModel model6 = BlockModel(8, 100, 100, 0);
 
-    String commands = udp.get_packet_buffer();
-    if (commands.length() > 0)
-    {
-        Serial.println("get packet Datas");
-        BlockModel models[100];
-        block_split(models, commands);
+    block_models[0] = model1;
+    block_models[1] = model2;
+    block_models[2] = model3;
+    block_models[3] = model4;
+    block_models[4] = model5;
+    block_models[5] = model6;
 
-        BlockModel loop_models[100];      //ループ対象のBlockModelが入っている配列
-        boolean is_in_loop_block = false; //ループ対象のブロックかどうか
-        int loop_count = 0;               //ループ回数
-        int j = 0;                        //loop_models配列の要素数
-
-        for (int i = 0; i < 100; i++)
-        {
-            Serial.println(models[i].get_block_state());
-            if (models[i].get_block_state() == 0)
-            {
-                break;
-            }
-            bool is_loop_start = models[i].get_block_state() == 5;
-            if (is_loop_start) //ループスタートのブロックのとき、ループ回数を取得し、ループエンドブロックが出るまで以降のBlockModelをループ対象のブロックとする
-            {
-                Serial.println("ループスタート");
-                loop_count = models[i].get_time(); //ループ回数
-                Serial.println(loop_count);
-                is_in_loop_block = true;
-            }
-            else if (models[i].get_block_state() == 6) //ループエンドのブロックのとき、ループ対象のブロックをループ回数分処理
-            {
-                Serial.println("ループエンド");
-
-                for (int i = 0; i < loop_count; i++)
-                {
-                    for (int m = 0; m < j; m++) //ループ対象のブロックを処理
-                    {
-                        Serial.print("loop: state:   ");
-                        Serial.println(loop_models[m].get_block_state());
-                        Serial.print("loop: left_speed:   ");
-                        Serial.println(loop_models[m].get_left_speed());
-                        Serial.print("loop: right_speed:   ");
-                        Serial.println(loop_models[m].get_right_speed());
-                        Serial.print("loop: time:   ");
-                        Serial.println(loop_models[m].get_time());
-
-                        motor.run_motor(loop_models[m].get_block_state(), loop_models[m].get_left_speed(), loop_models[m].get_right_speed(), loop_models[m].get_time());
-                    }
-                }
-
-                is_in_loop_block = false;
-                loop_count = 0;
-                j = 0;
-            }
-            else if (is_in_loop_block) //ループ対象のブロックをloop_models配列に入れる
-            {
-                Serial.println(models[i].get_block_state());
-                Serial.println(models[i].get_left_speed());
-                Serial.println(models[i].get_right_speed());
-                Serial.println(models[i].get_time());
-
-                loop_models[j].set_block_state(models[i].get_block_state());
-                loop_models[j].set_left_speed(models[i].get_left_speed());
-                loop_models[j].set_right_speed(models[i].get_right_speed());
-                loop_models[j].set_time(models[i].get_time());
-                j++;
-            }
-            else //ループ対象でないブロックの処理
-            {
-                Serial.print("default: state:   ");
-                Serial.println(models[i].get_block_state());
-                Serial.print("default: left_speed:   ");
-                Serial.println(models[i].get_left_speed());
-                Serial.print("default: right_speed:   ");
-                Serial.println(models[i].get_right_speed());
-                Serial.print("default: time:   ");
-                Serial.println(models[i].get_time());
-
-                motor.run_motor(models[i].get_block_state(), models[i].get_left_speed(), models[i].get_right_speed(), models[i].get_time());
-            }
-        }
-
-        //データ削除
-        udp.clear_packet_buffer();
-
-        //完了通知
-        char sendText[] = "Done!\r";
-        udp.send_data(remote_ip, sendText);
+    BlockModel return_blocks[100] = {};
+    ifJudge(return_blocks,block_models);
+    
+    Serial.println("egegegegegegegegegege");
+    for (int i = 0; i < 2; i++) {
+        Serial.print("default: state:   ");
+        Serial.println(return_blocks[i].get_block_state());
+        Serial.print("default: left_speed:   ");
+        Serial.println(return_blocks[i].get_left_speed());
+        Serial.print("default: right_speed:   ");
+        Serial.println(return_blocks[i].get_right_speed());
+        Serial.print("default: time:   ");
+        Serial.println(return_blocks[i].get_time());
     }
+     delay(10000);
+    
 }
 
 // 参照渡しで実装してあります
@@ -168,48 +108,61 @@ void block_split(BlockModel block_models[100], String text)
     }
 }
 
-void ifJudge(BlockModel block_models[100]) {
+void ifJudge(BlockModel return_blocks[100],BlockModel block_models[100]) {
 
     BlockModel true_blocks[100];
     int true_count = 0;
     BlockModel false_blocks[100];
     int false_count = 0;
     for (int i = 1; i < 100; i ++) {
-        if (100 < block_models[i].get_block_state() || block_models[i].get_block_state() < 200 ) {
+        if (block_models[i].get_block_state() == -1515870811) {
+            break;
+        }
+        if (100 < block_models[i].get_block_state() && block_models[i].get_block_state() < 200 ) {
             true_blocks[true_count] = block_models[i];
             true_blocks[true_count] = blockStateChange(true_blocks[true_count]);
+
             true_count++;
-        } else if (200 < block_models[i].get_block_state() || block_models[i].get_block_state() < 300) {
+        } else if (200 < block_models[i].get_block_state() && block_models[i].get_block_state() < 300) {
             false_blocks[false_count] = block_models[i];
-            false_blocks[true_count] = blockStateChange(false_blocks[false_count]);
+            false_blocks[false_count] = blockStateChange(false_blocks[false_count]);
+
             false_count++;
         }
     }
 
     if (block_models[0].get_if_comparison() == 1) {
         if (block_models[0].get_if_threshold() < sensor.getDistance()) {
-            block_models = {};
-            block_models = true_blocks;
+            for (int i = 0; i < 100; i++) {
+                return_blocks[i] = true_blocks[i];
+            }
+            Serial.println("111111111111 ");
             return;
         } else {
-            block_models = {};
-            block_models = false_blocks;
+            for (int i = 0; i < 100; i++) {
+                return_blocks[i] = false_blocks[i];
+            }
+            Serial.println("22222222222 ");
             return;
         }
 
     }else if (block_models[0].get_if_comparison() == 2) {
         if (block_models[0].get_if_threshold() > sensor.getDistance()) {
-            block_models = {};
-            block_models = true_blocks;
+             for (int i = 0; i < 100; i++) {
+                return_blocks[i] = true_blocks[i];
+            }
+            Serial.println("3333333333333");
             return;
         } else {
-            block_models = {};
-            block_models = false_blocks;
+            for (int i = 0; i < 100; i++) {
+                return_blocks[i] = false_blocks[i];
+            }
+            Serial.println("444444444444");
             return;
         }
     }
-
 }
+
 BlockModel blockStateChange(BlockModel model) {
     switch(model.get_block_state()){
          case 101:
