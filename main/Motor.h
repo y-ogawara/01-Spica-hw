@@ -19,8 +19,8 @@ private:
   int CHANNEL_3 = 3;
 
   int LEDC_TIMER_BIT = 8;   // PWMの範囲(8bitなら0〜255、10bitなら0〜1023)
-  int LEDC_BASE_FREQ = 490; // 周波数(Hz)
-  int VALUE_MAX = 255;      // PWMの最大値
+  int LEDC_BASE_FREQ = 1000; // 周波数(Hz)
+  int VALUE_MAX = 84;      // PWMの最大値
 
 public:
   Motor();
