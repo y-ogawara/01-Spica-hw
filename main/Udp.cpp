@@ -7,7 +7,7 @@ Udp::Udp(){}
 
 void Udp::setup_udp(char ssid[], char password[], String ip)
 {
-  IPAddress local_IP(192, 168, 1, 19);
+  IPAddress local_IP(192, 168, 1, 170);
   IPAddress gateway(192, 168, 0, 1);
   IPAddress subnet(255, 255, 255, 0);
 
@@ -51,7 +51,8 @@ void Udp::recieve_packet()
 
 String Udp::get_packet_buffer()
 {
-  return String(this->packet_buffer);
+  String packetStr = String(this->packet_buffer);
+  return packetStr;
 }
 
 void Udp::clear_packet_buffer()
