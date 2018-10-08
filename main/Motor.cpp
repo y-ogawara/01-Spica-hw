@@ -48,6 +48,7 @@ void Motor::run_motor(int state, uint32_t left_pwm, uint32_t right_pwm, int time
 
     delay(time);
     coast(); //空転
+    delay(400);
 }
 
 void Motor::forward(uint32_t left_pwm, uint32_t right_pwm)
