@@ -9,14 +9,29 @@ Sensor sensor;
 
 char ssid[] = "robop-WiFi-n";
 char password[] = "robop0304";
-char local_ip[] = "";
+char local_ip[] = "192.168.1.170";
 char remote_ip[] = "192.168.1.10";
+
+
+void rebootTask(void *pvParameters) {
+  while(1) {
+    udp.recieve_packet();
+    String packet = udp.get_packet_buffer();
+    if (packet.startsWith("reboot-now")) {
+        ESP.restart();
+    }
+    udp.clear_packet_buffer();
+    delay(1000);
+  }
+}
+
 
 void setup()
 {
     Serial.begin(115200);
 
     Serial.println("setup start!");
+    xTaskCreate(rebootTask,"rebootTask", 1024, NULL, 1, NULL);
 
     //Wifi設定
     udp.setup_udp(ssid, password, local_ip);
@@ -41,6 +56,9 @@ void setup()
 
 void loop()
 {  
+
+    motor.run_motor(1,80,60,1000);
+    motor.run_motor(2,80,60,1000);
 }
 
 // 参照渡しで実装してあります
