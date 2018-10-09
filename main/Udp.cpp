@@ -3,11 +3,11 @@
 #include <WiFi.h>
 #include <WiFiUdp.h>
 
-Udp::Udp(){}
+Udp::Udp() {}
 
 void Udp::setup_udp(char ssid[], char password[], String ip)
 {
-  IPAddress local_IP(192, 168, 1, 19);
+  IPAddress local_IP(192, 168, 0, 19);
   IPAddress gateway(192, 168, 0, 1);
   IPAddress subnet(255, 255, 255, 0);
 
@@ -26,16 +26,16 @@ void Udp::setup_udp(char ssid[], char password[], String ip)
   Serial.println(" connected");
   Serial.println(WiFi.localIP());
 
-   Serial.println("Starting UDP");
-   wifi_udp.begin(local_port); // UDP通信の開始(引数はポート番号)
-   Serial.print("Local port: ");
-   Serial.println(local_port);
+  Serial.println("Starting UDP");
+  wifi_udp.begin(local_port); // UDP通信の開始(引数はポート番号)
+  Serial.print("Local port: ");
+  Serial.println(local_port);
 }
 
 void Udp::recieve_packet()
 {
   int packet_size = wifi_udp.parsePacket();
-  
+
   if (packet_size)
   {
     //UDP情報の表示
@@ -57,13 +57,13 @@ String Udp::get_packet_buffer()
 void Udp::clear_packet_buffer()
 {
   int packetBuffer_length = strlen(this->packet_buffer);
-  memset(this->packet_buffer ,'\0',packetBuffer_length);
+  memset(this->packet_buffer, '\0', packetBuffer_length);
 }
 
 void Udp::send_data(char remote_ip[], char text[])
-{ 
+{
   Serial.println("send...");
-  
+
   wifi_udp.beginPacket(remote_ip, local_port);
   wifi_udp.printf(text);
   wifi_udp.endPacket();

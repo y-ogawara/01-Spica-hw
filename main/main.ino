@@ -7,10 +7,10 @@ Motor motor;
 Udp udp;
 Sensor sensor;
 
-char ssid[] = "robop-WiFi-n";
-char password[] = "robop0304";
+char ssid[] = "";
+char password[] = "";
 char local_ip[] = "";
-char remote_ip[] = "192.168.1.10";
+char remote_ip[] = "192.168.0.8";
 
 void setup()
 {
@@ -47,6 +47,7 @@ void loop()
     // Serial.print("距離:    ");
     // Serial.println(distance);
     udp.recieve_packet();
+    delay(100);
 
     String commands = udp.get_packet_buffer();
     delay(100);
@@ -55,155 +56,116 @@ void loop()
         Serial.println("get packet Datas");
         BlockModel models[100];
         block_split(models, commands);
+        int i; //modelsのインデックス
 
-        BlockModel loop_models[100];      //ループ対象のBlockModelが入っている配列
-        boolean is_in_loop_block = false; //ループ対象のブロックかどうか
-        int loop_count = 0;               //ループ回数
-        int j = 0;                        //loop_models配列の要素数
+        // BlockModel if_models[100];            //ifブロックで囲まれた範囲内のBlockModelが入っている配列
+        // BlockModel if_decomposed_models[100]; //if_modelsの中身をif_judge関数で分解した結果が入る配列
+        // boolean is_in_if_block = false;       //if対象のブロックかどうか
+        // int m = 0;                            //if_models配列の要素数
 
-        BlockModel if_models[100];            //ifブロックで囲まれた範囲内のBlockModelが入っている配列
-        BlockModel if_decomposed_models[100]; //if_modelsの中身をif_judge関数で分解した結果が入る配列
-        boolean is_in_if_block = false;       //if対象のブロックかどうか
-        int m = 0;                            //if_models配列の要素数
+        BlockModel run_models[100]; //実行対象のBlockModel
 
-        for (int i = 0; i < 100; i++)
+        for (i = 0; i < 100; i++)
         {
-            if (models[i].get_block_state() == 0)
+            bool is_undefined = models[i].get_block_state() <= 0;
+            //bool is_standard = models[i].get_block_state() == 1;
+            bool is_loop_start = models[i].get_block_state() == 5;
+            //bool is_if_start = models[i].get_block_state() == 7;
+            //bool is_if_end = models[i].get_block_state() == 8;
+
+            if (is_undefined)
             {
                 break;
             }
-            bool is_loop_start = models[i].get_block_state() == 5;
-            bool is_loop_end = models[i].get_block_state() == 6;
-            bool is_if_start = models[i].get_block_state() == 7;
-            bool is_if_end = models[i].get_block_state() == 8;
 
-            if (is_loop_start) //ループスタートのブロックのとき、ループ回数を取得し、ループエンドブロックが出るまで以降のBlockModelをループ対象のブロックとする
+            else if (is_loop_start)
             {
-                Serial.println("ループスタート");
-                loop_count = models[i].get_time(); //ループ回数
-                Serial.println(loop_count);
-                is_in_loop_block = true;
-            }
-            else if (is_if_start)
-            {
-                Serial.println("ifスタート");
-                is_in_if_block = true;
+                //TODO for文分解後の文字列をrun_modelsに追加する
+                int for_start_index = i;
+                BlockModel for_decomposed_models[100];
+                for_judge(for_decomposed_models, models, for_start_index);
 
-                Serial.println(models[i].get_block_state());
-                Serial.println(models[i].get_left_speed());
-                Serial.println(models[i].get_right_speed());
-                Serial.println(models[i].get_time());
-
-                if_models[m].set_block_state(models[i].get_block_state());
-                if_models[m].set_left_speed(models[i].get_left_speed());
-                if_models[m].set_right_speed(models[i].get_right_speed());
-                if_models[m].set_time(models[i].get_time());
-                m++;
-            }
-
-            else if (is_if_end)
-            {
-                Serial.println("ifエンド");
-
-                Serial.println(models[i].get_block_state());
-                Serial.println(models[i].get_left_speed());
-                Serial.println(models[i].get_right_speed());
-                Serial.println(models[i].get_time());
-
-                if_models[m].set_block_state(models[i].get_block_state());
-                if_models[m].set_left_speed(models[i].get_left_speed());
-                if_models[m].set_right_speed(models[i].get_right_speed());
-                if_models[m].set_time(models[i].get_time());
-
-                //TODO if_models をif解釈関数に投げて、run_motorに投げる
-                if_judge(if_decomposed_models, if_models);
-                Serial.println("if解釈後------------");
-                for (int c = 0; c < 100; c++)
+                for (int j = 0; j < 100; j++)
                 {
-                    Serial.println(if_decomposed_models[c].get_block_state());
-                    Serial.println(if_decomposed_models[c].get_left_speed());
-                    Serial.println(if_decomposed_models[c].get_right_speed());
-                    Serial.println(if_decomposed_models[c].get_time());
-                }
-                Serial.println("--------------------");
-
-                is_in_if_block = false;
-                m = 0;
-            }
-
-            else if (is_loop_end) //ループエンドのブロックのとき、ループ対象のブロックをループ回数分処理
-            {
-                Serial.println("ループエンド");
-
-                for (int a = 0; a < loop_count; a++)
-                {
-                    for (int b = 0; b < j; b++) //ループ対象のブロックを処理
+                    if (for_decomposed_models[j].get_block_state() <= 0)
                     {
-                        Serial.print("loop: state:   ");
-                        Serial.println(loop_models[b].get_block_state());
-                        Serial.print("loop: left_speed:   ");
-                        Serial.println(loop_models[b].get_left_speed());
-                        Serial.print("loop: right_speed:   ");
-                        Serial.println(loop_models[b].get_right_speed());
-                        Serial.print("loop: time:   ");
-                        Serial.println(loop_models[b].get_time());
-
-                        motor.run_motor(loop_models[b].get_block_state(), loop_models[b].get_left_speed(), loop_models[b].get_right_speed(), loop_models[b].get_time());
+                        break;
                     }
+
+                    run_models[i] = for_decomposed_models[j];
+                    i++;
                 }
-
-                is_in_loop_block = false;
-                loop_count = 0;
-                j = 0;
             }
-            else if (is_in_if_block)
+
+            else
             {
-                Serial.print("if: state:   ");
-                Serial.println(models[i].get_block_state());
-                Serial.print("if: left_speed:   ");
-                Serial.println(models[i].get_left_speed());
-                Serial.print("if: right_speed:   ");
-                Serial.println(models[i].get_right_speed());
-                Serial.print("if: time:   ");
-                Serial.println(models[i].get_time());
-
-                if_models[m].set_block_state(models[i].get_block_state());
-                if_models[m].set_left_speed(models[i].get_left_speed());
-                if_models[m].set_right_speed(models[i].get_right_speed());
-                if_models[m].set_time(models[i].get_time());
-                m++;
+                run_models[i] = models[i];
             }
 
-            else if (is_in_loop_block) //ループ対象のブロックをloop_models配列に入れる
+            // else if (is_if_end)
+            // {
+            //     Serial.println("ifエンド");
+
+            //     Serial.println(models[i].get_block_state());
+            //     Serial.println(models[i].get_left_speed());
+            //     Serial.println(models[i].get_right_speed());
+            //     Serial.println(models[i].get_time());
+
+            //     if_models[m].set_block_state(models[i].get_block_state());
+            //     if_models[m].set_left_speed(models[i].get_left_speed());
+            //     if_models[m].set_right_speed(models[i].get_right_speed());
+            //     if_models[m].set_time(models[i].get_time());
+
+            //     //TODO if_models をif解釈関数に投げて、run_motorに投げる
+            //     if_judge(if_decomposed_models, if_models);
+            //     Serial.println("if解釈後------------");
+            //     for (int c = 0; c < 100; c++)
+            //     {
+            //         Serial.println(if_decomposed_models[c].get_block_state());
+            //         Serial.println(if_decomposed_models[c].get_left_speed());
+            //         Serial.println(if_decomposed_models[c].get_right_speed());
+            //         Serial.println(if_decomposed_models[c].get_time());
+            //     }
+            //     Serial.println("--------------------");
+
+            //     is_in_if_block = false;
+            //     m = 0;
+            // }
+
+            // else if (is_in_if_block)
+            // {
+            //     Serial.print("if: state:   ");
+            //     Serial.println(models[i].get_block_state());
+            //     Serial.print("if: left_speed:   ");
+            //     Serial.println(models[i].get_left_speed());
+            //     Serial.print("if: right_speed:   ");
+            //     Serial.println(models[i].get_right_speed());
+            //     Serial.print("if: time:   ");
+            //     Serial.println(models[i].get_time());
+
+            //     if_models[m].set_block_state(models[i].get_block_state());
+            //     if_models[m].set_left_speed(models[i].get_left_speed());
+            //     if_models[m].set_right_speed(models[i].get_right_speed());
+            //     if_models[m].set_time(models[i].get_time());
+            //     m++;
+            // }
+        }
+
+        for (int x = 0; x < 100; x++)
+        {
+            if (run_models[x].get_block_state() <= 0)
             {
-                Serial.print("loop: state:   ");
-                Serial.println(models[i].get_block_state());
-                Serial.print("loop: left_speed:   ");
-                Serial.println(models[i].get_left_speed());
-                Serial.print("loop: right_speed:   ");
-                Serial.println(models[i].get_right_speed());
-                Serial.print("loop: time:   ");
-                Serial.println(models[i].get_time());
-
-                loop_models[j].set_block_state(models[i].get_block_state());
-                loop_models[j].set_left_speed(models[i].get_left_speed());
-                loop_models[j].set_right_speed(models[i].get_right_speed());
-                loop_models[j].set_time(models[i].get_time());
-                j++;
+                break;
             }
-            else //ループ対象でないブロックの処理
-            {
-                Serial.print("default: state:   ");
-                Serial.println(models[i].get_block_state());
-                Serial.print("default: left_speed:   ");
-                Serial.println(models[i].get_left_speed());
-                Serial.print("default: right_speed:   ");
-                Serial.println(models[i].get_right_speed());
-                Serial.print("default: time:   ");
-                Serial.println(models[i].get_time());
 
-                motor.run_motor(models[i].get_block_state(), models[i].get_left_speed(), models[i].get_right_speed(), models[i].get_time());
-            }
+            Serial.print("run_models: state:   ");
+            Serial.println(run_models[x].get_block_state());
+            Serial.print("run_models: left_speed:   ");
+            Serial.println(run_models[x].get_left_speed());
+            Serial.print("run_models: right_speed:   ");
+            Serial.println(run_models[x].get_right_speed());
+            Serial.print("run_models: time:   ");
+            Serial.println(run_models[x].get_time());
         }
 
         //データ削除
@@ -239,7 +201,7 @@ void block_split(BlockModel block_models[100], String text)
         int block_state = block_texts[i].substring(0, 4).toInt();
         int block_left_speed = block_texts[i].substring(4, 7).toInt();
         int block_right_speed = block_texts[i].substring(7, 10).toInt();
-        int block_time = block_texts[i].substring(10, 13).toInt() * 1000;
+        int block_time = block_texts[i].substring(10, 13).toInt();
 
         block_models[i].set_block_state(block_state);
         block_models[i].set_left_speed(block_left_speed);
@@ -361,4 +323,49 @@ BlockModel block_state_change(BlockModel model)
         break;
     }
     return model;
+}
+
+/* ループ調整関数 */
+void for_judge(BlockModel return_blocks[100], BlockModel models[100], int start_index)
+{
+    int loop_count = 0;
+    BlockModel loop_blocks[100];
+    int j = 0; //loop_blocksのインデックス
+
+    for (int i = start_index; i < 100; i++)
+    {
+        if (models[i].get_block_state() <= 0)
+        {
+            break;
+        }
+        else if (models[i].get_block_state() == 5) //ループスタートブロックからループカウント数を取得
+        {
+            loop_count = models[i].get_loop_count();
+        }
+        else if (models[i].get_block_state() == 6)
+        {
+            int m = 0; //return_blocksのインデックス
+
+            //ループ回数分 繰り返す
+            for (int count = 0; count < loop_count; count++)
+            {
+                for (int n = 0; n < j; n++)
+                {
+                    if (loop_blocks[n].get_block_state() <= 0)
+                    {
+                        n = 0;
+                        break;
+                    }
+
+                    return_blocks[m] = loop_blocks[n];
+                    m++;
+                }
+            }
+        }
+        else //ループ対象ブロックを抽出
+        {
+            loop_blocks[j] = models[i];
+            j++;
+        }
+    }
 }
