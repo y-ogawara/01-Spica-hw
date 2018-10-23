@@ -7,6 +7,8 @@ Udp::Udp(){}
 
 void Udp::setup_udp(char ssid[], char password[], String ip)
 {
+  WiFi.mode(WIFI_STA);
+
   IPAddress local_IP(192, 168, 1, 170);
   IPAddress gateway(192, 168, 0, 1);
   IPAddress subnet(255, 255, 255, 0);
@@ -30,6 +32,20 @@ void Udp::setup_udp(char ssid[], char password[], String ip)
    wifi_udp.begin(local_port); // UDP通信の開始(引数はポート番号)
    Serial.print("Local port: ");
    Serial.println(local_port);
+}
+
+void Udp::check_wifi_status(char ssid[], char password[], String ip){
+  int i;
+  if(WiFi.status() != WL_CONNECTED){
+    Serial.println("WiFi disconnected");
+    WiFi.disconnect();
+    delay(100);
+    WiFi.begin(ssid, password);
+    while (WiFi.status() != WL_CONNECTED) {
+      delay(2000);
+      ESP.restart();
+    }
+  }
 }
 
 void Udp::recieve_packet()
