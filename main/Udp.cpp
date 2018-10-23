@@ -34,7 +34,7 @@ void Udp::setup_udp(char ssid[], char password[], String ip)
    Serial.println(local_port);
 }
 
-void Udp::check_wifi_status(char ssid[], char password[], String ip){
+void Udp::check_wifi_status(char ssid[], char password[]){
   int i;
   if(WiFi.status() != WL_CONNECTED){
     Serial.println("WiFi disconnected");

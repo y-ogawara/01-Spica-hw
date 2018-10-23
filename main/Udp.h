@@ -21,6 +21,7 @@ class Udp
   public:
     Udp();
     void setup_udp(char ssid[], char password[], String ip);
+    void check_wifi_status(char ssid[], char password[]);
     void recieve_packet();
     void send_data(char remote_ip[], char text[]);
     String get_packet_buffer();

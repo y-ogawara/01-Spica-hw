@@ -67,6 +67,8 @@ void loop()
         //完了通知
         Serial.println("Done!");
     }
+
+    udp.check_wifi_status(ssid, password);
 }
 
 //udp通信で送られてきた文字列をsplitして、参照渡しでblock_modelsに返す
