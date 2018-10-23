@@ -189,6 +189,7 @@ void forJudge(BlockModel return_blocks[50], BlockModel block_models[50], int loo
     }
 }
 
+// block_modelsの中身のコマンドを順次モーター駆動処理しながら、途中にifブロックがあれば随時解釈処理を実行してモーター駆動処理を行う
 void runModels(BlockModel block_models[50])
 {
     int model_size = 50;
