@@ -44,37 +44,25 @@ void setup()
 void loop()
 {
     //udp.recieve_packet();
-    String commands = "000310010000100050000000020001100100001000210010000100060000000000004100100001"; // udp.get_packet_buffer()
+    String commands = "0001100100001000210010000100031001000010004100100001"; // コマンド文字列受け取り  // udp.get_packet_buffer()
 
     if (commands.length() > 0)
     {
         Serial.println("get packet Datas");
-        BlockModel block_models[100];
-        block_split(block_models, commands);
+        int model_size = 50;  //BlockModelの配列のサイズ
 
-        BlockModel for_decomposed_models[100];
-        forCheck(for_decomposed_models, block_models);
+        BlockModel block_models[model_size] = {};  //block_splitした後のBlockModelが入る
+        block_split(block_models, commands);  //受信したコマンドを命令ごとに整形
 
-        //debug
-        for (int i = 0; i < sizeof(for_decomposed_models); i++)
-        {
-            if (for_decomposed_models[i].get_block_state() <= 0)
-            {
-                break;
-            }
+        BlockModel for_decomposed_models[model_size] = {};  //for文を全て外した後のBlockModelが入る
+        forCheck(for_decomposed_models, block_models);  //for文解釈
 
-            Serial.print("for_decomposed_models: state:   ");
-            Serial.println(for_decomposed_models[i].get_block_state());
-            Serial.print("for_decomposed_models: left_speed:   ");
-            Serial.println(for_decomposed_models[i].get_left_speed());
-            Serial.print("for_decomposed_models: right_speed:   ");
-            Serial.println(for_decomposed_models[i].get_right_speed());
-            Serial.print("for_decomposed_models: time:   ");
-            Serial.println(for_decomposed_models[i].get_time());
-        }
+        runModels(for_decomposed_models);
 
         //データ削除
         udp.clear_packet_buffer();
+        memset(block_models, '\0', model_size);
+        memset(for_decomposed_models, '\0', model_size);
 
         //完了通知
         Serial.println("Done!");
@@ -82,9 +70,10 @@ void loop()
 }
 
 //udp通信で送られてきた文字列をsplitして、参照渡しでblock_modelsに返す
-void block_split(BlockModel block_models[100], String text)
+void block_split(BlockModel block_models[50], String text)
 {
-    String block_texts[100];
+    int model_size = 50;
+    String block_texts[model_size] = {};
     String tmp_text = text;
     for (int i = 0; i < text.length() / 13; i++)
     {
@@ -92,7 +81,7 @@ void block_split(BlockModel block_models[100], String text)
         tmp_text = tmp_text.substring(13, tmp_text.length());
     }
 
-    for (int i = 0; i < 100; i++)
+    for (int i = 0; i < model_size; i++)
     {
         if (block_texts[i].length() == 0)
         {
@@ -115,10 +104,10 @@ void block_split(BlockModel block_models[100], String text)
 }
 
 //全体のblock_modelsから、forスタートブロックとforエンドブロックの間のループ対象ブロック抜き出して分解する
-void forCheck(BlockModel return_blocks[100], BlockModel block_models[100])
+void forCheck(BlockModel return_blocks[50], BlockModel block_models[50])
 {
-    int model_size = 100;
-    BlockModel range_for_blocks[model_size];
+    int model_size = 50;
+    BlockModel range_for_blocks[model_size] = {};
     bool is_loop_now = false;
     int loop_count = 0;
     int j = 0; //range_for_blocks のインデックス
@@ -126,9 +115,9 @@ void forCheck(BlockModel return_blocks[100], BlockModel block_models[100])
 
     for (int i = 0; i < model_size; i++)
     {
-        bool is_undefiend_state = block_models[i].get_block_state() <= 0;
-        bool is_loop_start = block_models[i].get_block_state() == 5;
-        bool is_loop_end = block_models[i].get_block_state() == 6;
+        bool is_undefiend_state = checkInappropriateState(block_models[i].get_block_state());
+        bool is_loop_start = (block_models[i].get_block_state() == 5 || block_models[i].get_block_state() == 105 || block_models[i].get_block_state() == 205);
+        bool is_loop_end = (block_models[i].get_block_state() == 6 || block_models[i].get_block_state() == 106 || block_models[i].get_block_state() == 206);
 
         if (is_undefiend_state)
         {
@@ -142,28 +131,18 @@ void forCheck(BlockModel return_blocks[100], BlockModel block_models[100])
         else if (is_loop_end)
         {
             is_loop_now = false;
-            BlockModel for_decomposed_models[model_size];
+            BlockModel for_decomposed_models[model_size] = {};
 
-            //TODO forJudgeにわたす
             forJudge(for_decomposed_models, range_for_blocks, loop_count);
 
             for (int l = 0; l < model_size; l++)
             {
-                is_undefiend_state = for_decomposed_models[l].get_block_state() <= 0;
+                bool is_undefiend_state = checkInappropriateState(for_decomposed_models[l].get_block_state());
 
                 if (is_undefiend_state)
                 {
                     break;
                 }
-
-                // Serial.print("for block: state:   ");
-                // Serial.println(for_decomposed_models[l].get_block_state());
-                // Serial.print("for block: left_speed:   ");
-                // Serial.println(for_decomposed_models[l].get_left_speed());
-                // Serial.print("for block: right_speed:   ");
-                // Serial.println(for_decomposed_models[l].get_right_speed());
-                // Serial.print("for block: time:   ");
-                // Serial.println(for_decomposed_models[l].get_time());
 
                 return_blocks[k] = for_decomposed_models[l];
                 k++;
@@ -176,7 +155,6 @@ void forCheck(BlockModel return_blocks[100], BlockModel block_models[100])
         }
         else if (is_loop_now)
         {
-            Serial.println("find loop_now");
             range_for_blocks[j] = block_models[i];
             j++;
         }
@@ -189,16 +167,16 @@ void forCheck(BlockModel return_blocks[100], BlockModel block_models[100])
 }
 
 //forスタートとforエンドブロックの間のループ対象block_modelsを投げて、ループ回数分つなげたblock_modelsを返す
-void forJudge(BlockModel return_blocks[100], BlockModel block_models[100], int loop_count)
+void forJudge(BlockModel return_blocks[50], BlockModel block_models[50], int loop_count)
 {
-    int model_size = 100;
+    int model_size = 50;
     int i = 0; //return_blocks のインデックス
 
     for (int count = 0; count < loop_count; count++)
     {
         for (int j = 0; j < model_size; j++)
         {
-            bool is_undefiend_state = block_models[j].get_block_state() <= 0;
+            bool is_undefiend_state = checkInappropriateState(block_models[j].get_block_state());
 
             if (is_undefiend_state)
             {
@@ -211,28 +189,113 @@ void forJudge(BlockModel return_blocks[100], BlockModel block_models[100], int l
     }
 }
 
-//ifスタートブロックからifエンドブロックまでのblock_modelsを投げて、センサー値の結果に基づいて適切なblock_modelsを返す
-void ifJudge(BlockModel return_blocks[100], BlockModel block_models[100])
+void runModels(BlockModel block_models[50])
 {
+    int model_size = 50;
+    BlockModel range_if_blocks[model_size] = {};
+    int j = 0; // range_if_blocks のインデックス
+    bool is_if_now = false;
 
-    BlockModel true_blocks[100];
-    int true_count = 0;
-    BlockModel false_blocks[100];
-    int false_count = 0;
-    for (int i = 1; i < 100; i++)
+    for (int i = 0; i < model_size; i++)
     {
-        if (block_models[i].get_block_state() == -1515870811)
+        bool is_undefiend_state = checkInappropriateState(block_models[i].get_block_state());
+        bool is_if_start = block_models[i].get_block_state() == 7;
+        bool is_if_end = block_models[i].get_block_state() == 8;
+
+        if (is_undefiend_state)
         {
             break;
         }
-        if (100 < block_models[i].get_block_state() && block_models[i].get_block_state() < 200)
+        else if (is_if_start)
+        {
+            is_if_now = true;
+            range_if_blocks[j] = block_models[i];
+            j++;
+        }
+        else if (is_if_end) //全体のblock_modelsから、ifスタートブロックからifエンドブロックのブロックを抜き出して分解する
+        {
+            is_if_now = false;
+            range_if_blocks[j] = block_models[i];
+            BlockModel if_decomposed_models[model_size] = {};
+
+            ifJudge(if_decomposed_models, range_if_blocks);
+
+            for (int k = 0; k < model_size; k++)
+            {
+                bool is_undefiend_state = checkInappropriateState(if_decomposed_models[k].get_block_state());
+
+                if (is_undefiend_state)
+                {
+                    break;
+                }
+
+                //TODO run_motor
+                motor.run_motor(if_decomposed_models[k]);
+
+                // Serial.print("if: state:   ");
+                // Serial.println(if_decomposed_models[k].get_block_state());
+                // Serial.print("if: left_speed:   ");
+                // Serial.println(if_decomposed_models[k].get_left_speed());
+                // Serial.print("if: right_speed:   ");
+                // Serial.println(if_decomposed_models[k].get_right_speed());
+                // Serial.print("if: time:   ");
+                // Serial.println(if_decomposed_models[k].get_time());
+            }
+
+            //if関係の変数値初期化
+            j = 0;
+            memset(range_if_blocks, '\0', model_size);
+            memset(if_decomposed_models, '\0', model_size);
+        }
+        else if (is_if_now)
+        {
+            range_if_blocks[j] = block_models[i];
+            j++;
+        }
+        else
+        {
+            //TODO run_motor
+            motor.run_motor(block_models[i]);
+
+            // Serial.print("default: state:   ");
+            // Serial.println(block_models[i].get_block_state());
+            // Serial.print("default: left_speed:   ");
+            // Serial.println(block_models[i].get_left_speed());
+            // Serial.print("default: right_speed:   ");
+            // Serial.println(block_models[i].get_right_speed());
+            // Serial.print("default: time:   ");
+            // Serial.println(block_models[i].get_time());
+        }
+    }
+}
+
+//ifスタートブロックからifエンドブロックまでのblock_modelsを投げて、センサー値の結果に基づいて適切なblock_modelsを返す
+void ifJudge(BlockModel return_blocks[50], BlockModel block_models[50])
+{
+    int model_size = 50;
+    BlockModel true_blocks[model_size] = {};
+    int true_count = 0;
+    BlockModel false_blocks[model_size] = {};
+    int false_count = 0;
+    for (int i = 1; i < model_size; i++)
+    {
+        bool is_undefiend_state = checkInappropriateState(block_models[i].get_block_state());
+        bool is_if_end = block_models[i].get_block_state() == 8;
+        bool is_true_models = (100 < block_models[i].get_block_state() && block_models[i].get_block_state() < 200);
+        bool is_false_models = (200 < block_models[i].get_block_state() && block_models[i].get_block_state() < 300);
+
+        if (is_undefiend_state)
+        {
+            break;
+        }
+        if (is_true_models)
         {
             true_blocks[true_count] = block_models[i];
             true_blocks[true_count] = blockStateChange(true_blocks[true_count]);
 
             true_count++;
         }
-        else if (200 < block_models[i].get_block_state() && block_models[i].get_block_state() < 300)
+        else if (is_false_models)
         {
             false_blocks[false_count] = block_models[i];
             false_blocks[false_count] = blockStateChange(false_blocks[false_count]);
@@ -245,20 +308,30 @@ void ifJudge(BlockModel return_blocks[100], BlockModel block_models[100])
     {
         if (block_models[0].get_if_threshold() < sensor.getDistance())
         {
-            for (int i = 0; i < 100; i++)
+            for (int j = 0; j <= true_count; j++)
             {
-                return_blocks[i] = true_blocks[i];
+                bool is_undefiend_state = checkInappropriateState(true_blocks[j].get_block_state());
+                if (is_undefiend_state)
+                {
+                    break;
+                }
+
+                return_blocks[j] = true_blocks[j];
             }
-            Serial.println("111111111111 ");
             return;
         }
         else
         {
-            for (int i = 0; i < 100; i++)
+            for (int j = 0; j <= false_count; j++)
             {
-                return_blocks[i] = false_blocks[i];
+                bool is_undefiend_state = checkInappropriateState(false_blocks[j].get_block_state());
+                if (is_undefiend_state)
+                {
+                    break;
+                }
+
+                return_blocks[j] = false_blocks[j];
             }
-            Serial.println("22222222222 ");
             return;
         }
     }
@@ -266,20 +339,30 @@ void ifJudge(BlockModel return_blocks[100], BlockModel block_models[100])
     {
         if (block_models[0].get_if_threshold() > sensor.getDistance())
         {
-            for (int i = 0; i < 100; i++)
+            for (int j = 0; j <= true_count; j++)
             {
-                return_blocks[i] = true_blocks[i];
+                bool is_undefiend_state = checkInappropriateState(true_blocks[j].get_block_state());
+                if (is_undefiend_state)
+                {
+                    break;
+                }
+
+                return_blocks[j] = true_blocks[j];
             }
-            Serial.println("3333333333333");
             return;
         }
         else
         {
-            for (int i = 0; i < 100; i++)
+            for (int j = 0; j <= false_count; j++)
             {
-                return_blocks[i] = false_blocks[i];
+                bool is_undefiend_state = checkInappropriateState(false_blocks[j].get_block_state());
+                if (is_undefiend_state)
+                {
+                    break;
+                }
+
+                return_blocks[j] = false_blocks[j];
             }
-            Serial.println("444444444444");
             return;
         }
     }
@@ -325,4 +408,69 @@ BlockModel blockStateChange(BlockModel model)
         break;
     }
     return model;
+}
+
+bool checkInappropriateState(int state_num)
+{
+    bool is_inappropriate = false;
+
+    switch (state_num)
+    {
+    case 1:
+    case 101:
+    case 201:
+        //Serial.println("前進処理のブロック");
+        break;
+
+    case 2:
+    case 102:
+    case 202:
+        //Serial.println("後退処理のブロック");
+        break;
+
+    case 3:
+    case 103:
+    case 203:
+        //Serial.println("左回転処理のブロック");
+        break;
+
+    case 4:
+    case 104:
+    case 204:
+        //Serial.println("右回転処理のブロック");
+        break;
+
+    case 5:
+    case 105:
+    case 205:
+        //Serial.println("forスタートのブロック");
+        break;
+
+    case 6:
+    case 106:
+    case 206:
+        //Serial.println("forエンドのブロック");
+        break;
+
+    case 7:
+        //Serial.println("ifスタートのブロック");
+        break;
+
+    case 8:
+        //Serial.println("ifエンドのブロック");
+        break;
+
+    case 9:
+    case 109:
+    case 209:
+        //Serial.println("breakのブロック");
+        break;
+
+    default:
+        //Serial.println("コマンド終了");
+        is_inappropriate = true;
+        break;
+    }
+
+    return is_inappropriate;
 }
