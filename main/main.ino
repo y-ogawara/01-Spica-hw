@@ -32,10 +32,10 @@ void setup()
     Serial.begin(115200);
 
     Serial.println("setup start!");
-    //xTaskCreate(rebootTask, "rebootTask", 1024, NULL, 1, NULL);
+    xTaskCreate(rebootTask, "rebootTask", 1024, NULL, 1, NULL);
 
     //Wifi設定
-    //udp.setup_udp(ssid, password, local_ip);
+    udp.setup_udp(ssid, password, local_ip);
 
     motor = Motor();
     sensor = Sensor();
@@ -43,8 +43,8 @@ void setup()
 
 void loop()
 {
-    //udp.recieve_packet();
-    String commands = "0001100100001000210010000100031001000010004100100001"; // コマンド文字列受け取り  // udp.get_packet_buffer()
+    udp.recieve_packet();
+    String commands = udp.get_packet_buffer(); // コマンド文字列受け取り
 
     if (commands.length() > 0)
     {
@@ -229,17 +229,7 @@ void runModels(BlockModel block_models[50])
                     break;
                 }
 
-                //TODO run_motor
                 motor.run_motor(if_decomposed_models[k]);
-
-                // Serial.print("if: state:   ");
-                // Serial.println(if_decomposed_models[k].get_block_state());
-                // Serial.print("if: left_speed:   ");
-                // Serial.println(if_decomposed_models[k].get_left_speed());
-                // Serial.print("if: right_speed:   ");
-                // Serial.println(if_decomposed_models[k].get_right_speed());
-                // Serial.print("if: time:   ");
-                // Serial.println(if_decomposed_models[k].get_time());
             }
 
             //if関係の変数値初期化
@@ -254,17 +244,7 @@ void runModels(BlockModel block_models[50])
         }
         else
         {
-            //TODO run_motor
             motor.run_motor(block_models[i]);
-
-            // Serial.print("default: state:   ");
-            // Serial.println(block_models[i].get_block_state());
-            // Serial.print("default: left_speed:   ");
-            // Serial.println(block_models[i].get_left_speed());
-            // Serial.print("default: right_speed:   ");
-            // Serial.println(block_models[i].get_right_speed());
-            // Serial.print("default: time:   ");
-            // Serial.println(block_models[i].get_time());
         }
     }
 }
@@ -284,7 +264,7 @@ void ifJudge(BlockModel return_blocks[50], BlockModel block_models[50])
         bool is_true_models = (100 < block_models[i].get_block_state() && block_models[i].get_block_state() < 200);
         bool is_false_models = (200 < block_models[i].get_block_state() && block_models[i].get_block_state() < 300);
 
-        if (is_undefiend_state)
+        if (is_undefiend_state || is_if_end)
         {
             break;
         }
