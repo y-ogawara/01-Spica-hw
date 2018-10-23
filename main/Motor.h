@@ -2,6 +2,7 @@
 #define _Motor_h
 
 #include "Arduino.h"
+#include "BlockModel.h"
 
 class Motor
 {
@@ -24,13 +25,14 @@ private:
 
 public:
   Motor();
-  void run_motor(int state, uint32_t left_pwm, uint32_t right_pwm, int time);
+  void run_motor(BlockModel blockModel);
   void forward(uint32_t left_pwm, uint32_t right_pwm);
   void back(uint32_t left_pwm, uint32_t right_pwm);
   void right(uint32_t pwm);
   void left(uint32_t pwm);
   void brake();
   void coast();
+  void debug_show_command(BlockModel blockModel);
 };
 
 #endif

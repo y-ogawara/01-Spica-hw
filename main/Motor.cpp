@@ -25,8 +25,15 @@ Motor::Motor()
     delay(100);
 }
 
-void Motor::run_motor(int state, uint32_t left_pwm, uint32_t right_pwm, int time)
+void Motor::run_motor(BlockModel blockModel) //int state, uint32_t left_pwm, uint32_t right_pwm, int time
 {
+    debug_show_command(blockModel);  //Serial.printでデバッグする関数
+
+    int state = blockModel.get_block_state();
+    uint32_t left_pwm = blockModel.get_left_speed();
+    uint32_t right_pwm = blockModel.get_right_speed();
+    int time = blockModel.get_time() * 100;  //FIXME get_time()が10で1秒なので、単位msに変えるので*100してる  なんかWrapper作ったほうが良さげ?
+
     switch(state)
     {
       case 1:  //forward
@@ -52,9 +59,7 @@ void Motor::run_motor(int state, uint32_t left_pwm, uint32_t right_pwm, int time
 }
 
 void Motor::forward(uint32_t left_pwm, uint32_t right_pwm)
-{
-    Serial.println("前進");
-  
+{ 
     if (left_pwm > VALUE_MAX)
     {
         left_pwm = VALUE_MAX;
@@ -71,9 +76,7 @@ void Motor::forward(uint32_t left_pwm, uint32_t right_pwm)
 }
 
 void Motor::back(uint32_t left_pwm, uint32_t right_pwm)
-{
-      Serial.println("後退");
-  
+{ 
     if (left_pwm > VALUE_MAX)
     {
         left_pwm = VALUE_MAX;
@@ -90,9 +93,7 @@ void Motor::back(uint32_t left_pwm, uint32_t right_pwm)
 }
 
 void Motor::right(uint32_t pwm)
-{
-      Serial.println("右回転");
-  
+{ 
     if (pwm > VALUE_MAX)
     {
         pwm = VALUE_MAX;
@@ -104,9 +105,7 @@ void Motor::right(uint32_t pwm)
 }
 
 void Motor::left(uint32_t pwm)
-{
-      Serial.println("左回転");
-  
+{ 
     if (pwm > VALUE_MAX)
     {
         pwm = VALUE_MAX;
@@ -131,4 +130,37 @@ void Motor::coast()
     ledcWrite(CHANNEL_1, 0);
     ledcWrite(CHANNEL_2, 0);
     ledcWrite(CHANNEL_3, 0);
+}
+
+void Motor::debug_show_command(BlockModel blockModel)
+{
+    int state = blockModel.get_block_state();
+    float time = blockModel.get_time() * 0.1; // get_time()が10で1秒
+
+    switch(state)
+    {
+        case 1:
+            Serial.print("前進 を ");
+            Serial.print(time);
+            Serial.println("秒実行");
+            break;
+        case 2:
+            Serial.print("後退 を");
+            Serial.print(time);
+            Serial.println("秒実行");
+            break;
+        case 3:
+            Serial.print("左回転 を");
+            Serial.print(time);
+            Serial.println("秒実行");
+            break;
+        case 4:
+            Serial.print("右回転 を");
+            Serial.print(time);
+            Serial.println("秒実行");
+            break;
+        default:
+            Serial.print("エラー");
+            break;
+    }
 }
