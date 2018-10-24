@@ -40,6 +40,7 @@ void Udp::check_wifi_status(char ssid[], char password[]){
     Serial.println("WiFi disconnected");
     WiFi.disconnect();
     delay(100);
+    //TODO WiFi.configの設定（IPAddressのパース未実装のためスキップ）
     WiFi.begin(ssid, password);
     while (WiFi.status() != WL_CONNECTED) {
       delay(2000);
