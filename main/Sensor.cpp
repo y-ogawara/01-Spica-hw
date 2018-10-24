@@ -1,8 +1,8 @@
 #include "Arduino.h"
 #include "Sensor.h"
 
-int trig = 32; // 出力ピン
-int echo = 33; // 入力ピン
+int trig = 22; // 出力ピン
+int echo = 23; // 入力ピン
 Sensor::Sensor()
 {
     //TODO ピンのセットアップ

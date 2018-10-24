@@ -140,27 +140,27 @@ void Motor::debug_show_command(BlockModel blockModel)
     switch(state)
     {
         case 1:
-            Serial.print("前進 を ");
+            Serial.print("Exec front ");
             Serial.print(time);
-            Serial.println("秒実行");
+            Serial.println("sec");
             break;
         case 2:
-            Serial.print("後退 を");
+            Serial.print("Exec  back ");
             Serial.print(time);
-            Serial.println("秒実行");
+            Serial.println("sec");
             break;
         case 3:
-            Serial.print("左回転 を");
+            Serial.print("Exec  left ");
             Serial.print(time);
-            Serial.println("秒実行");
+            Serial.println("sec");
             break;
         case 4:
-            Serial.print("右回転 を");
+            Serial.print("Exec right ");
             Serial.print(time);
-            Serial.println("秒実行");
+            Serial.println("sec");
             break;
         default:
-            Serial.print("エラー");
+            Serial.print("Exec error");
             break;
     }
 }
