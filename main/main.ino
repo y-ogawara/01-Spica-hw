@@ -44,7 +44,7 @@ void setup()
 void loop()
 {
     udp.recieve_packet();
-    String commands = "00041001000020007001000010010110010000101021001000010202100100001020110010000100080000000000003100100001";// コマンド文字列受け取り  //udp.get_packet_buffer();
+    String commands = udp.get_packet_buffer(); // コマンド文字列受け取り
 
     if (commands.length() > 0)
     {
