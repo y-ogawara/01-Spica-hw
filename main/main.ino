@@ -65,8 +65,8 @@ void loop()
         memset(for_decomposed_models, '\0', model_size);
 
         //完了通知
-        Serial.println("Done!");
-        char sendText[] = "Done!\r";
+        Serial.println("Done");
+        char sendText[] = "Done\r";
         udp.send_data(remote_ip, sendText);
     }
 }
