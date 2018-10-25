@@ -44,7 +44,7 @@ void setup()
 void loop()
 {
     udp.recieve_packet();
-    String commands = udp.get_packet_buffer(); // コマンド文字列受け取り
+    String commands = "00041001000020007001000010010110010000101021001000010202100100001020110010000100080000000000003100100001";// コマンド文字列受け取り  //udp.get_packet_buffer();
 
     if (commands.length() > 0)
     {
@@ -115,7 +115,7 @@ void for_check(BlockModel return_blocks[50], BlockModel block_models[50])
 
     for (int i = 0; i < model_size; i++)
     {
-        bool is_undefined_state = is_undefined_state(block_models[i].get_block_state());
+        bool is_undefined_state = is_incorrect_state(block_models[i].get_block_state());
         bool is_loop_start = (block_models[i].get_block_state() == 5 || block_models[i].get_block_state() == 105 || block_models[i].get_block_state() == 205);
         bool is_loop_end = (block_models[i].get_block_state() == 6 || block_models[i].get_block_state() == 106 || block_models[i].get_block_state() == 206);
 
@@ -137,7 +137,7 @@ void for_check(BlockModel return_blocks[50], BlockModel block_models[50])
 
             for (int l = 0; l < model_size; l++)
             {
-                bool is_undefined_state = is_undefined_state(for_decomposed_models[l].get_block_state());
+                bool is_undefined_state = is_incorrect_state(for_decomposed_models[l].get_block_state());
 
                 if (is_undefined_state)
                 {
@@ -176,7 +176,7 @@ void for_judge(BlockModel return_blocks[50], BlockModel block_models[50], int lo
     {
         for (int j = 0; j < model_size; j++)
         {
-            bool is_undefined_state = is_undefined_state(block_models[j].get_block_state());
+            bool is_undefined_state = is_incorrect_state(block_models[j].get_block_state());
 
             if (is_undefined_state)
             {
@@ -199,7 +199,7 @@ void run_models(BlockModel block_models[50])
 
     for (int i = 0; i < model_size; i++)
     {
-        bool is_undefined_state = is_undefined_state(block_models[i].get_block_state());
+        bool is_undefined_state = is_incorrect_state(block_models[i].get_block_state());
         bool is_if_start = block_models[i].get_block_state() == 7;
         bool is_if_end = block_models[i].get_block_state() == 8;
 
@@ -223,7 +223,7 @@ void run_models(BlockModel block_models[50])
 
             for (int k = 0; k < model_size; k++)
             {
-                bool is_undefined_state = is_undefined_state(if_decomposed_models[k].get_block_state());
+                bool is_undefined_state = is_incorrect_state(if_decomposed_models[k].get_block_state());
 
                 if (is_undefined_state)
                 {
@@ -260,7 +260,7 @@ void if_judge(BlockModel return_blocks[50], BlockModel block_models[50])
     int false_count = 0;
     for (int i = 1; i < model_size; i++)
     {
-        bool is_undefined_state = is_undefined_state(block_models[i].get_block_state());
+        bool is_undefined_state = is_incorrect_state(block_models[i].get_block_state());
         bool is_if_end = block_models[i].get_block_state() == 8;
         bool is_true_models = (100 < block_models[i].get_block_state() && block_models[i].get_block_state() < 200);
         bool is_false_models = (200 < block_models[i].get_block_state() && block_models[i].get_block_state() < 300);
@@ -291,7 +291,7 @@ void if_judge(BlockModel return_blocks[50], BlockModel block_models[50])
         {
             for (int j = 0; j <= true_count; j++)
             {
-                bool is_undefined_state = is_undefined_state(true_blocks[j].get_block_state());
+                bool is_undefined_state = is_incorrect_state(true_blocks[j].get_block_state());
                 if (is_undefined_state)
                 {
                     break;
@@ -305,7 +305,7 @@ void if_judge(BlockModel return_blocks[50], BlockModel block_models[50])
         {
             for (int j = 0; j <= false_count; j++)
             {
-                bool is_undefined_state = is_undefined_state(false_blocks[j].get_block_state());
+                bool is_undefined_state = is_incorrect_state(false_blocks[j].get_block_state());
                 if (is_undefined_state)
                 {
                     break;
@@ -322,7 +322,7 @@ void if_judge(BlockModel return_blocks[50], BlockModel block_models[50])
         {
             for (int j = 0; j <= true_count; j++)
             {
-                bool is_undefined_state = is_undefined_state(true_blocks[j].get_block_state());
+                bool is_undefined_state = is_incorrect_state(true_blocks[j].get_block_state());
                 if (is_undefined_state)
                 {
                     break;
@@ -336,7 +336,7 @@ void if_judge(BlockModel return_blocks[50], BlockModel block_models[50])
         {
             for (int j = 0; j <= false_count; j++)
             {
-                bool is_undefined_state = is_undefined_state(false_blocks[j].get_block_state());
+                bool is_undefined_state = is_incorrect_state(false_blocks[j].get_block_state());
                 if (is_undefined_state)
                 {
                     break;
@@ -391,7 +391,7 @@ BlockModel block_state_change(BlockModel model)
     return model;
 }
 
-bool is_undefined_state(int state_num)
+bool is_incorrect_state(int state_num)
 {
     bool is_undefined = false;
 
