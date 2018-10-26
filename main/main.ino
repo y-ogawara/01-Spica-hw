@@ -10,7 +10,7 @@ Sensor sensor;
 char ssid[] = "robop-WiFi-n";
 char password[] = "robop0304";
 char local_ip[] = "192.168.1.170";
-char remote_ip[] = "192.168.1.10";
+char remote_ip[] = "192.168.1.22";
 
 void reboot_task(void *pvParameters)
 {
@@ -20,6 +20,7 @@ void reboot_task(void *pvParameters)
         String packet = udp.get_packet_buffer();
         if (packet.startsWith("reboot-now"))
         {
+            Serial.println("reboot-now");
             ESP.restart();
         }
         udp.clear_packet_buffer();
