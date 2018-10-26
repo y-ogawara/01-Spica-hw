@@ -10,7 +10,6 @@ Sensor sensor;
 char ssid[] = "robop-WiFi-n";
 char password[] = "robop0304";
 char local_ip[] = "192.168.1.170";
-char remote_ip[] = "192.168.1.22";
 
 int MOTOR_POWER_LOW = 80;
 int MOTOR_POWER_MIDDLE = 90;
@@ -74,7 +73,7 @@ void loop()
         //完了通知
         Serial.println("Done");
         char sendText[] = "Done\r";
-        udp.send_data(remote_ip, sendText);
+        udp.send_data(udp.get_remote_ip(), sendText);
     }
 }
 

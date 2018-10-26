@@ -61,7 +61,7 @@ void Udp::clear_packet_buffer()
   memset(this->packet_buffer ,'\0',packetBuffer_length);
 }
 
-void Udp::send_data(char remote_ip[], char text[])
+void Udp::send_data(IPAddress remote_ip, char text[])
 { 
   Serial.println("send...");
   
@@ -72,4 +72,8 @@ void Udp::send_data(char remote_ip[], char text[])
 }
 void Udp::disconnect() {
   WiFi.disconnect();
+}
+
+IPAddress Udp::get_remote_ip() {
+  return wifi_udp.remoteIP();
 }
