@@ -70,3 +70,6 @@ void Udp::send_data(char remote_ip[], char text[])
   wifi_udp.endPacket();
   delay(1000);
 }
+void Udp::disconnect() {
+  WiFi.disconnect();
+}

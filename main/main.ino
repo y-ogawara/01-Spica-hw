@@ -25,6 +25,8 @@ void reboot_task(void *pvParameters)
         if (packet.startsWith("reboot-now"))
         {
             Serial.println("reboot-now");
+            udp.disconnect();
+            //ESP.reset();
             ESP.restart();
         }
         udp.clear_packet_buffer();

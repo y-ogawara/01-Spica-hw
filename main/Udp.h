@@ -25,6 +25,7 @@ class Udp
     void send_data(char remote_ip[], char text[]);
     String get_packet_buffer();
     void clear_packet_buffer();
+    void disconnect();
 };
 
 #endif
