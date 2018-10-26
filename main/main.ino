@@ -11,9 +11,9 @@ char ssid[] = "robop-WiFi-n";
 char password[] = "robop0304";
 char local_ip[] = "192.168.1.170";
 
-int MOTOR_POWER_LOW = 80;
-int MOTOR_POWER_MIDDLE = 90;
-int MOTOR_POWER_HIGH = 100;
+int MOTOR_POWER_LOW = 60;
+int MOTOR_POWER_MIDDLE = 70;
+int MOTOR_POWER_HIGH = 80;
 
 void reboot_task(void *pvParameters)
 {
@@ -148,9 +148,26 @@ void block_split(BlockModel block_models[50], String text)
             break;
         }
         int block_state = block_texts[i].substring(0, 4).toInt();
-        int block_left_speed = generateSpeed(1, block_texts[i].substring(4, 7).toInt());
+        int block_left_speed = 0;
+        switch(block_state){
+            case 7:
+                block_left_speed = block_texts[i].substring(4, 7).toInt();
+                break;
+            default:
+                block_left_speed = generateSpeed(1, block_texts[i].substring(4, 7).toInt());
+                break;
+        }
         int block_right_speed = generateSpeed(2, block_texts[i].substring(7, 10).toInt());
         int block_time = block_texts[i].substring(10, 13).toInt();
+
+        // Serial.print("state ");
+        // Serial.println(block_state);
+        // Serial.print("left_speed ");
+        // Serial.println(block_left_speed);
+        // Serial.print("right_speed ");
+        // Serial.println(block_right_speed);
+        // Serial.print("time");
+        // Serial.println(block_time);
 
         block_models[i].set_block_state(block_state);
         block_models[i].set_left_speed(block_left_speed);
@@ -164,6 +181,7 @@ void for_check(BlockModel return_blocks[50], BlockModel block_models[50])
 {
     int model_size = 50;
     BlockModel range_for_blocks[model_size] = {};
+    return_blocks[model_size] = {};
     bool is_loop_now = false;
     int loop_count = 0;
     int j = 0; //range_for_blocks のインデックス
@@ -207,7 +225,7 @@ void for_check(BlockModel return_blocks[50], BlockModel block_models[50])
             //ループ関係の変数値初期化
             loop_count = 0;
             j = 0;
-            memset(range_for_blocks, '\0', model_size);
+            memset(for_decomposed_models, '\0', model_size);
         }
         else if (is_loop_now)
         {
@@ -220,12 +238,15 @@ void for_check(BlockModel return_blocks[50], BlockModel block_models[50])
             k++;
         }
     }
+
+    memset(block_models, '\0', model_size);
 }
 
 //forスタートとforエンドブロックの間のループ対象block_modelsを投げて、ループ回数分つなげたblock_modelsを返す
 void for_judge(BlockModel return_blocks[50], BlockModel block_models[50], int loop_count)
 {
     int model_size = 50;
+    return_blocks[model_size] = {};
     int i = 0; //return_blocks のインデックス
 
     for (int count = 0; count < loop_count; count++)
@@ -291,7 +312,6 @@ void run_models(BlockModel block_models[50])
 
             //if関係の変数値初期化
             j = 0;
-            memset(range_if_blocks, '\0', model_size);
             memset(if_decomposed_models, '\0', model_size);
         }
         else if (is_if_now)
@@ -310,6 +330,7 @@ void run_models(BlockModel block_models[50])
 void if_judge(BlockModel return_blocks[50], BlockModel block_models[50])
 {
     int model_size = 50;
+    return_blocks[model_size] = {};
     BlockModel true_blocks[model_size] = {};
     int true_count = 0;
     BlockModel false_blocks[model_size] = {};
@@ -321,7 +342,7 @@ void if_judge(BlockModel return_blocks[50], BlockModel block_models[50])
         bool is_true_models = (100 < block_models[i].get_block_state() && block_models[i].get_block_state() < 200);
         bool is_false_models = (200 < block_models[i].get_block_state() && block_models[i].get_block_state() < 300);
 
-        if (is_undefined_state || is_if_end)
+        if (is_undefined_state)
         {
             break;
         }
