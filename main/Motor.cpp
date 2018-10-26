@@ -133,6 +133,8 @@ void Motor::coast()
 void Motor::debug_show_command(BlockModel blockModel)
 {
     int state = blockModel.get_block_state();
+    int left_speed = blockModel.get_left_speed();
+    int right_speed = blockModel.get_right_speed();
     float time = blockModel.get_time() * 0.1; // get_time()が10で1秒
 
     switch(state)
@@ -140,22 +142,38 @@ void Motor::debug_show_command(BlockModel blockModel)
         case 1:
             Serial.print("Exec front ");
             Serial.print(time);
-            Serial.println("sec");
+            Serial.print("sec ");
+            Serial.print("leftSpeed ");
+            Serial.print(left_speed);
+            Serial.print(" rightSpeed ");
+            Serial.println(right_speed);
             break;
         case 2:
             Serial.print("Exec  back ");
             Serial.print(time);
-            Serial.println("sec");
+            Serial.print("sec ");
+            Serial.print("leftSpeed ");
+            Serial.print(left_speed);
+            Serial.print(" rightSpeed ");
+            Serial.println(right_speed);
             break;
         case 3:
             Serial.print("Exec  left ");
             Serial.print(time);
-            Serial.println("sec");
+            Serial.print("sec ");
+            Serial.print("leftSpeed ");
+            Serial.print(left_speed);
+            Serial.print(" rightSpeed ");
+            Serial.println(right_speed);
             break;
         case 4:
             Serial.print("Exec right ");
             Serial.print(time);
-            Serial.println("sec");
+            Serial.print("sec ");
+            Serial.print("leftSpeed ");
+            Serial.print(left_speed);
+            Serial.print(" rightSpeed ");
+            Serial.println(right_speed);
             break;
         default:
             Serial.print("Exec error");
