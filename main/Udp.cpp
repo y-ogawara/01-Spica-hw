@@ -5,13 +5,9 @@
 
 Udp::Udp(){}
 
-void Udp::setup_udp(char ssid[], char password[], String ip)
+void Udp::setup_udp(char ssid[], char password[], IPAddress local_ip, IPAddress gateway, IPAddress subnet)
 {
-  IPAddress local_IP(192, 168, 1, 170);
-  IPAddress gateway(192, 168, 0, 1);
-  IPAddress subnet(255, 255, 255, 0);
-
-  WiFi.config(local_IP, gateway, subnet);
+  WiFi.config(local_ip, gateway, subnet);
   delay(100);
 
   WiFi.begin(ssid, password);
