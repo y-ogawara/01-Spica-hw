@@ -3,8 +3,6 @@
 
 Motor::Motor()
 {
-    Serial.println("Motor constractor run");
-
     pinMode(IN1, OUTPUT); // IN1
     pinMode(IN2, OUTPUT); // IN2
     pinMode(IN3, OUTPUT); // IN3
