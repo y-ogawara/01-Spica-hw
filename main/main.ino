@@ -10,7 +10,7 @@ Sensor sensor;
 char ssid[] = "robop-WiFi-n";
 char password[] = "robop0304";
 IPAddress local_IP(192, 168, 1, 170);
-IPAddress gateway(192, 168, 0, 1);
+IPAddress gateway(192, 168, 1, 1);
 IPAddress subnet(255, 255, 255, 0);
 
 int MOTOR_POWER_LOW = 60;
@@ -28,6 +28,7 @@ void reboot_task(void *pvParameters)
             Serial.println("reboot-now");
             udp.disconnect();
             ESP.restart();
+            delay(2000);
         }
         udp.clear_packet_buffer();
         delay(1000);
