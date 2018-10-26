@@ -148,9 +148,26 @@ void block_split(BlockModel block_models[50], String text)
             break;
         }
         int block_state = block_texts[i].substring(0, 4).toInt();
-        int block_left_speed = generateSpeed(1, block_texts[i].substring(4, 7).toInt());
+        int block_left_speed = 0;
+        switch(block_state){
+            case 7:
+                block_left_speed = block_texts[i].substring(4, 7).toInt();
+                break;
+            default:
+                block_left_speed = generateSpeed(1, block_texts[i].substring(4, 7).toInt());
+                break;
+        }
         int block_right_speed = generateSpeed(2, block_texts[i].substring(7, 10).toInt());
         int block_time = block_texts[i].substring(10, 13).toInt();
+
+        // Serial.print("state ");
+        // Serial.println(block_state);
+        // Serial.print("left_speed ");
+        // Serial.println(block_left_speed);
+        // Serial.print("right_speed ");
+        // Serial.println(block_right_speed);
+        // Serial.print("time");
+        // Serial.println(block_time);
 
         block_models[i].set_block_state(block_state);
         block_models[i].set_left_speed(block_left_speed);
@@ -295,7 +312,6 @@ void run_models(BlockModel block_models[50])
 
             //if関係の変数値初期化
             j = 0;
-            memset(range_if_blocks, '\0', model_size);
             memset(if_decomposed_models, '\0', model_size);
         }
         else if (is_if_now)
@@ -326,7 +342,7 @@ void if_judge(BlockModel return_blocks[50], BlockModel block_models[50])
         bool is_true_models = (100 < block_models[i].get_block_state() && block_models[i].get_block_state() < 200);
         bool is_false_models = (200 < block_models[i].get_block_state() && block_models[i].get_block_state() < 300);
 
-        if (is_undefined_state || is_if_end)
+        if (is_undefined_state)
         {
             break;
         }
