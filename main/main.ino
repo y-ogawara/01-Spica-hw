@@ -11,9 +11,9 @@ char ssid[] = "robop-WiFi-n";
 char password[] = "robop0304";
 char local_ip[] = "192.168.1.170";
 
-int MOTOR_POWER_LOW = 80;
-int MOTOR_POWER_MIDDLE = 90;
-int MOTOR_POWER_HIGH = 100;
+int MOTOR_POWER_LOW = 60;
+int MOTOR_POWER_MIDDLE = 70;
+int MOTOR_POWER_HIGH = 80;
 
 void reboot_task(void *pvParameters)
 {
@@ -164,6 +164,7 @@ void for_check(BlockModel return_blocks[50], BlockModel block_models[50])
 {
     int model_size = 50;
     BlockModel range_for_blocks[model_size] = {};
+    return_blocks[model_size] = {};
     bool is_loop_now = false;
     int loop_count = 0;
     int j = 0; //range_for_blocks のインデックス
@@ -207,7 +208,7 @@ void for_check(BlockModel return_blocks[50], BlockModel block_models[50])
             //ループ関係の変数値初期化
             loop_count = 0;
             j = 0;
-            memset(range_for_blocks, '\0', model_size);
+            memset(for_decomposed_models, '\0', model_size);
         }
         else if (is_loop_now)
         {
@@ -220,12 +221,15 @@ void for_check(BlockModel return_blocks[50], BlockModel block_models[50])
             k++;
         }
     }
+
+    memset(block_models, '\0', model_size);
 }
 
 //forスタートとforエンドブロックの間のループ対象block_modelsを投げて、ループ回数分つなげたblock_modelsを返す
 void for_judge(BlockModel return_blocks[50], BlockModel block_models[50], int loop_count)
 {
     int model_size = 50;
+    return_blocks[model_size] = {};
     int i = 0; //return_blocks のインデックス
 
     for (int count = 0; count < loop_count; count++)
@@ -310,6 +314,7 @@ void run_models(BlockModel block_models[50])
 void if_judge(BlockModel return_blocks[50], BlockModel block_models[50])
 {
     int model_size = 50;
+    return_blocks[model_size] = {};
     BlockModel true_blocks[model_size] = {};
     int true_count = 0;
     BlockModel false_blocks[model_size] = {};
