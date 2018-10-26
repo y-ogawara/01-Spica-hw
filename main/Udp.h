@@ -22,10 +22,11 @@ class Udp
     Udp();
     void setup_udp(char ssid[], char password[], String ip);
     void recieve_packet();
-    void send_data(char remote_ip[], char text[]);
+    void send_data(IPAddress remote_ip, char text[]);
     String get_packet_buffer();
     void clear_packet_buffer();
     void disconnect();
+    IPAddress get_remote_ip();
 };
 
 #endif
