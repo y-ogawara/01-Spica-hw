@@ -12,6 +12,10 @@ char password[] = "robop0304";
 char local_ip[] = "192.168.1.170";
 char remote_ip[] = "192.168.1.22";
 
+int MOTOR_POWER_LOW = 80;
+int MOTOR_POWER_MIDDLE = 90;
+int MOTOR_POWER_HIGH = 100;
+
 void reboot_task(void *pvParameters)
 {
     while (1)
@@ -69,6 +73,53 @@ void loop()
         Serial.println("Done");
         char sendText[] = "Done\r";
         udp.send_data(remote_ip, sendText);
+    }
+}
+
+int resistivityRead() {
+    int PIN_NUM = 33;
+    int reading = analogRead(PIN_NUM);
+    Serial.println(reading);
+    // MAX256の値で返す
+    return reading / 16;
+}
+
+// flagは1を入れると左モーター,2で右モーターの値を返す
+int generateSpeed(int flag, int app_speed) {
+    int resistivity_num = resistivityRead();
+    int left_num = 128 - resistivity_num;
+    int right_num = resistivity_num - 128;
+    // -の値だったら0にする
+    if (left_num < 0) {
+        left_num =0;
+    }
+    if (right_num < 0) {
+        right_num =0;
+    }
+    if (flag == 1) {
+        switch (app_speed) {
+            // 最低速度
+            case 1:
+                return MOTOR_POWER_LOW + left_num;
+            // 真ん中
+            case 2:
+                return MOTOR_POWER_MIDDLE + left_num;
+            // 最速
+            case 3:
+                return MOTOR_POWER_HIGH + left_num;
+        }
+    } else if (flag == 2) {
+        switch (app_speed) {
+            // 最低速度
+            case 1:
+                return MOTOR_POWER_LOW + right_num;
+            // 真ん中
+            case 2:
+                return MOTOR_POWER_MIDDLE + right_num;
+            // 最速
+            case 3:
+                return MOTOR_POWER_HIGH + right_num;
+        }
     }
 }
 
