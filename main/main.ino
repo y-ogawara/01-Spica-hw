@@ -79,16 +79,16 @@ void loop()
 int resistivityRead() {
     int PIN_NUM = 33;
     int reading = analogRead(PIN_NUM);
-    Serial.println(reading);
+    //Serial.println(reading);
     // MAX256の値で返す
-    return reading / 16;
+    return reading / 128;
 }
 
 // flagは1を入れると左モーター,2で右モーターの値を返す
 int generateSpeed(int flag, int app_speed) {
     int resistivity_num = resistivityRead();
-    int left_num = 128 - resistivity_num;
-    int right_num = resistivity_num - 128;
+    int left_num = 16 - resistivity_num;
+    int right_num = resistivity_num - 16;
     // -の値だったら0にする
     if (left_num < 0) {
         left_num =0;
@@ -121,6 +121,7 @@ int generateSpeed(int flag, int app_speed) {
                 return MOTOR_POWER_HIGH + right_num;
         }
     }
+    return 0;
 }
 
 //udp通信で送られてきた文字列をsplitして、参照渡しでblock_modelsに返す
@@ -146,8 +147,8 @@ void block_split(BlockModel block_models[50], String text)
             break;
         }
         int block_state = block_texts[i].substring(0, 4).toInt();
-        int block_left_speed = block_texts[i].substring(4, 7).toInt();
-        int block_right_speed = block_texts[i].substring(7, 10).toInt();
+        int block_left_speed = generateSpeed(1, block_texts[i].substring(4, 7).toInt());
+        int block_right_speed = generateSpeed(2, block_texts[i].substring(7, 10).toInt());
         int block_time = block_texts[i].substring(10, 13).toInt();
 
         block_models[i].set_block_state(block_state);
