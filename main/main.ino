@@ -9,13 +9,13 @@ Sensor sensor;
 
 char ssid[] = "robop-WiFi-n";
 char password[] = "robop0304";
-IPAddress local_IP(192, 168, 1, 170);
+IPAddress local_IP(192, 168, 1, 109);
 IPAddress gateway(192, 168, 1, 1);
 IPAddress subnet(255, 255, 255, 0);
 
-int MOTOR_POWER_LOW = 60;
-int MOTOR_POWER_MIDDLE = 70;
-int MOTOR_POWER_HIGH = 80;
+int MOTOR_POWER_LOW = 90;
+int MOTOR_POWER_MIDDLE = 130;
+int MOTOR_POWER_HIGH = 160;
 
 void reboot_task(void *pvParameters)
 {
