@@ -13,9 +13,9 @@ IPAddress local_IP(192, 168, 1, 109);
 IPAddress gateway(192, 168, 1, 1);
 IPAddress subnet(255, 255, 255, 0);
 
-int MOTOR_POWER_LOW = 90;
-int MOTOR_POWER_MIDDLE = 130;
-int MOTOR_POWER_HIGH = 160;
+int MOTOR_POWER_LOW = 70;
+int MOTOR_POWER_MIDDLE = 110;
+int MOTOR_POWER_HIGH = 140;
 
 void reboot_task(void *pvParameters)
 {
@@ -162,14 +162,14 @@ void block_split(BlockModel block_models[50], String text)
         int block_right_speed = generateSpeed(2, block_texts[i].substring(7, 10).toInt());
         int block_time = block_texts[i].substring(10, 13).toInt();
 
-        // Serial.print("state ");
-        // Serial.println(block_state);
-        // Serial.print("left_speed ");
-        // Serial.println(block_left_speed);
-        // Serial.print("right_speed ");
-        // Serial.println(block_right_speed);
-        // Serial.print("time");
-        // Serial.println(block_time);
+        Serial.print("state ");
+        Serial.println(block_state);
+        Serial.print("left_speed ");
+        Serial.println(block_left_speed);
+        Serial.print("right_speed ");
+        Serial.println(block_right_speed);
+        Serial.print("time");
+        Serial.println(block_time);
 
         block_models[i].set_block_state(block_state);
         block_models[i].set_left_speed(block_left_speed);
@@ -241,6 +241,7 @@ void for_check(BlockModel return_blocks[50], BlockModel block_models[50])
         }
     }
 
+    memset(range_for_blocks, '\0', model_size);
     memset(block_models, '\0', model_size);
 }
 
@@ -326,6 +327,9 @@ void run_models(BlockModel block_models[50])
             motor.run_motor(block_models[i]);
         }
     }
+
+    memset(range_if_blocks, '\0', model_size);
+    memset(block_models, '\0', model_size);
 }
 
 //ifスタートブロックからifエンドブロックまでのblock_modelsを投げて、センサー値の結果に基づいて適切なblock_modelsを返す
@@ -348,7 +352,7 @@ void if_judge(BlockModel return_blocks[50], BlockModel block_models[50])
         {
             break;
         }
-        if (is_true_models)
+        else if (is_true_models)
         {
             true_blocks[true_count] = block_models[i];
             true_blocks[true_count] = block_state_change(true_blocks[true_count]);
@@ -364,6 +368,10 @@ void if_judge(BlockModel return_blocks[50], BlockModel block_models[50])
         }
     }
 
+    //センサー値取得
+    Serial.print("sensor value ");
+    Serial.println(sensor.getDistance());
+
     if (block_models[0].get_if_comparison() == 1)
     {
         if (block_models[0].get_if_threshold() < sensor.getDistance())
@@ -378,6 +386,9 @@ void if_judge(BlockModel return_blocks[50], BlockModel block_models[50])
 
                 return_blocks[j] = true_blocks[j];
             }
+            memset(block_models, '\0', model_size);
+            memset(true_blocks, '\0', model_size);
+            memset(false_blocks, '\0', model_size);
             return;
         }
         else
@@ -392,6 +403,9 @@ void if_judge(BlockModel return_blocks[50], BlockModel block_models[50])
 
                 return_blocks[j] = false_blocks[j];
             }
+            memset(block_models, '\0', model_size);
+            memset(true_blocks, '\0', model_size);
+            memset(false_blocks, '\0', model_size);
             return;
         }
     }
@@ -409,6 +423,9 @@ void if_judge(BlockModel return_blocks[50], BlockModel block_models[50])
 
                 return_blocks[j] = true_blocks[j];
             }
+            memset(block_models, '\0', model_size);
+            memset(true_blocks, '\0', model_size);
+            memset(false_blocks, '\0', model_size);
             return;
         }
         else
@@ -423,6 +440,9 @@ void if_judge(BlockModel return_blocks[50], BlockModel block_models[50])
 
                 return_blocks[j] = false_blocks[j];
             }
+            memset(block_models, '\0', model_size);
+            memset(true_blocks, '\0', model_size);
+            memset(false_blocks, '\0', model_size);
             return;
         }
     }
