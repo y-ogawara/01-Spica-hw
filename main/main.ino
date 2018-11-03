@@ -9,7 +9,7 @@ Sensor sensor;
 
 char ssid[] = "robop-WiFi-n";
 char password[] = "robop0304";
-IPAddress local_IP(192, 168, 1, 110);
+IPAddress local_IP(192, 168, 1, 101);  // 下3桁を101から機体ごとに連番で指定
 IPAddress gateway(192, 168, 1, 1);
 IPAddress subnet(255, 255, 255, 0);
 
