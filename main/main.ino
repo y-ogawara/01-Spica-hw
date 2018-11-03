@@ -9,7 +9,7 @@ Sensor sensor;
 
 char ssid[] = "robop-WiFi-n";
 char password[] = "robop0304";
-IPAddress local_IP(192, 168, 1, 102);
+IPAddress local_IP(192, 168, 1, 101);  // 下3桁を101から機体ごとに連番で指定
 IPAddress gateway(192, 168, 1, 1);
 IPAddress subnet(255, 255, 255, 0);
 
@@ -74,7 +74,7 @@ void loop()
 
         //完了通知
         Serial.println("Done");
-        char sendText[] = "Done\r";
+        char sendText[] = "Done";
         udp.send_data(udp.get_remote_ip(), sendText);
     }
 }
