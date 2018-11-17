@@ -2,6 +2,7 @@
 #include "Motor.h"
 #include "Sensor.h"
 #include "BlockModel.h"
+#include "esp_system.h"
 
 Motor motor;
 Udp udp;
@@ -27,7 +28,7 @@ void reboot_task(void *pvParameters)
         {
             Serial.println("reboot-now");
             udp.disconnect();
-            ESP.restart();
+            system_restart();
             delay(2000);
         }
         udp.clear_packet_buffer();
