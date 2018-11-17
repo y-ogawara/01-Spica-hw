@@ -14,9 +14,9 @@ IPAddress local_IP(192, 168, 1, 101); // 下3桁を101から機体ごとに連�
 IPAddress gateway(192, 168, 1, 1);
 IPAddress subnet(255, 255, 255, 0);
 
-int MOTOR_POWER_LOW = 70;
-int MOTOR_POWER_MIDDLE = 110;
-int MOTOR_POWER_HIGH = 140;
+int MOTOR_POWER_LOW = 60;
+int MOTOR_POWER_MIDDLE = 80;
+int MOTOR_POWER_HIGH = 100;
 
 void reboot_task(void *pvParameters)
 {
