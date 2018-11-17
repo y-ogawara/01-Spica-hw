@@ -426,7 +426,7 @@ int find_if_scope(BlockModel block_models[50], int if_start_index)
 
     if (block_models[if_start_index].get_if_comparison() == 1)
     {
-        if (block_models[if_start_index].get_if_threshold() < 15) //DEBUG sensor.getDistance()
+        if (block_models[if_start_index].get_if_threshold() < sensor.getDistance())
         {
             for (int j = 0; j <= true_count; j++)
             {
@@ -495,7 +495,7 @@ int find_if_scope(BlockModel block_models[50], int if_start_index)
     }
     else if (block_models[if_start_index].get_if_comparison() == 2)
     {
-        if (block_models[if_start_index].get_if_threshold() > 15) //DEBUG sensor.getDistance()
+        if (block_models[if_start_index].get_if_threshold() > sensor.getDistance())
         {
             for (int j = 0; j <= true_count; j++)
             {
