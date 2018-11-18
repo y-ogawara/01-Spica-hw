@@ -34,25 +34,27 @@ void Motor::run_motor(BlockModel blockModel) //int state, uint32_t left_pwm, uin
 
     switch(state)
     {
-      case 1:  //forward
+    case 1:  //forward
         forward(left_pwm, right_pwm);
         break;
 
-      case 2:  //back
+    case 2:  //back
         back(left_pwm, right_pwm);
         break;
 
-      case 3: //left
+    case 3: //left
         left(left_pwm);
         break;
 
-      case 4: //right
+    case 4: //right
         right(right_pwm);
         break;
     }
 
     delay(time);
     coast(); //空転
+    delay(200);
+    brake();
     delay(400);
 }
 

@@ -10,13 +10,13 @@ Sensor sensor;
 
 char ssid[] = "robop-WiFi-n";
 char password[] = "robop0304";
-IPAddress local_IP(192, 168, 1, 101);  // 下3桁を101から機体ごとに連番で指定
+IPAddress local_IP(192, 168, 1, 101); // 下3桁を101から機体ごとに連番で指定
 IPAddress gateway(192, 168, 1, 1);
 IPAddress subnet(255, 255, 255, 0);
 
-int MOTOR_POWER_LOW = 70;
-int MOTOR_POWER_MIDDLE = 110;
-int MOTOR_POWER_HIGH = 140;
+int MOTOR_POWER_LOW = 60;
+int MOTOR_POWER_MIDDLE = 80;
+int MOTOR_POWER_HIGH = 100;
 
 void reboot_task(void *pvParameters)
 {
@@ -58,20 +58,17 @@ void loop()
     if (commands.length() > 0)
     {
         Serial.println("get packet Datas");
-        int model_size = 50;  //BlockModelの配列のサイズ
+        int model_size = 50; //BlockModelの配列のサイズ
 
-        BlockModel block_models[model_size] = {};  //block_splitした後のBlockModelが入る
-        block_split(block_models, commands);  //受信したコマンドを命令ごとに整形
+        BlockModel block_models[model_size] = {}; //block_splitした後のBlockModelが入る
+        block_split(block_models, commands);      //受信したコマンドを命令ごとに整形
 
-        BlockModel for_decomposed_models[model_size] = {};  //for文を全て外した後のBlockModelが入る
-        for_check(for_decomposed_models, block_models);  //for文解釈
-
-        run_models(for_decomposed_models);
+        execute_command(block_models);
 
         //データ削除
         udp.clear_packet_buffer();
         memset(block_models, '\0', model_size);
-        memset(for_decomposed_models, '\0', model_size);
+        // memset(for_decomposed_models, '\0', model_size);
 
         //完了通知
         Serial.println("Done");
@@ -80,49 +77,57 @@ void loop()
     }
 }
 
-int resistivityRead() {
+int resistivityRead()
+{
     int PIN_NUM = 33;
     int reading = analogRead(PIN_NUM);
-    //Serial.println(reading);
     // MAX256の値で返す
     return reading / 128;
 }
 
 // flagは1を入れると左モーター,2で右モーターの値を返す
-int generateSpeed(int flag, int app_speed) {
+int generateSpeed(int flag, int app_speed)
+{
     int resistivity_num = resistivityRead();
     int left_num = 16 - resistivity_num;
     int right_num = resistivity_num - 16;
     // -の値だったら0にする
-    if (left_num < 0) {
-        left_num =0;
+    if (left_num < 0)
+    {
+        left_num = 0;
     }
-    if (right_num < 0) {
-        right_num =0;
+    if (right_num < 0)
+    {
+        right_num = 0;
     }
-    if (flag == 1) {
-        switch (app_speed) {
-            // 最低速度
-            case 1:
-                return MOTOR_POWER_LOW + left_num;
-            // 真ん中
-            case 2:
-                return MOTOR_POWER_MIDDLE + left_num;
-            // 最速
-            case 3:
-                return MOTOR_POWER_HIGH + left_num;
+    if (flag == 1)
+    {
+        switch (app_speed)
+        {
+        // 最低速度
+        case 1:
+            return MOTOR_POWER_LOW + left_num;
+        // 真ん中
+        case 2:
+            return MOTOR_POWER_MIDDLE + left_num;
+        // 最速
+        case 3:
+            return MOTOR_POWER_HIGH + left_num;
         }
-    } else if (flag == 2) {
-        switch (app_speed) {
-            // 最低速度
-            case 1:
-                return MOTOR_POWER_LOW + right_num;
-            // 真ん中
-            case 2:
-                return MOTOR_POWER_MIDDLE + right_num;
-            // 最速
-            case 3:
-                return MOTOR_POWER_HIGH + right_num;
+    }
+    else if (flag == 2)
+    {
+        switch (app_speed)
+        {
+        // 最低速度
+        case 1:
+            return MOTOR_POWER_LOW + right_num;
+        // 真ん中
+        case 2:
+            return MOTOR_POWER_MIDDLE + right_num;
+        // 最速
+        case 3:
+            return MOTOR_POWER_HIGH + right_num;
         }
     }
     return 0;
@@ -152,300 +157,22 @@ void block_split(BlockModel block_models[50], String text)
         }
         int block_state = block_texts[i].substring(0, 4).toInt();
         int block_left_speed = 0;
-        switch(block_state){
-            case 7:
-                block_left_speed = block_texts[i].substring(4, 7).toInt();
-                break;
-            default:
-                block_left_speed = generateSpeed(1, block_texts[i].substring(4, 7).toInt());
-                break;
+        switch (block_state)
+        {
+        case 7:
+            block_left_speed = block_texts[i].substring(4, 7).toInt();
+            break;
+        default:
+            block_left_speed = generateSpeed(1, block_texts[i].substring(4, 7).toInt());
+            break;
         }
         int block_right_speed = generateSpeed(2, block_texts[i].substring(7, 10).toInt());
         int block_time = block_texts[i].substring(10, 13).toInt();
-
-        Serial.print("state ");
-        Serial.println(block_state);
-        Serial.print("left_speed ");
-        Serial.println(block_left_speed);
-        Serial.print("right_speed ");
-        Serial.println(block_right_speed);
-        Serial.print("time");
-        Serial.println(block_time);
 
         block_models[i].set_block_state(block_state);
         block_models[i].set_left_speed(block_left_speed);
         block_models[i].set_right_speed(block_right_speed);
         block_models[i].set_time(block_time);
-    }
-}
-
-//全体のblock_modelsから、forスタートブロックとforエンドブロックの間のループ対象ブロック抜き出して分解する
-void for_check(BlockModel return_blocks[50], BlockModel block_models[50])
-{
-    int model_size = 50;
-    BlockModel range_for_blocks[model_size] = {};
-    return_blocks[model_size] = {};
-    bool is_loop_now = false;
-    int loop_count = 0;
-    int j = 0; //range_for_blocks のインデックス
-    int k = 0; //return_blocks のインデックス
-
-    for (int i = 0; i < model_size; i++)
-    {
-        bool is_undefined_state = is_incorrect_state(block_models[i].get_block_state());
-        bool is_loop_start = (block_models[i].get_block_state() == 5 || block_models[i].get_block_state() == 105 || block_models[i].get_block_state() == 205);
-        bool is_loop_end = (block_models[i].get_block_state() == 6 || block_models[i].get_block_state() == 106 || block_models[i].get_block_state() == 206);
-
-        if (is_undefined_state)
-        {
-            break;
-        }
-        else if (is_loop_start)
-        {
-            is_loop_now = true;
-            loop_count = block_models[i].get_loop_count();
-        }
-        else if (is_loop_end)
-        {
-            is_loop_now = false;
-            BlockModel for_decomposed_models[model_size] = {};
-
-            for_judge(for_decomposed_models, range_for_blocks, loop_count);
-
-            for (int l = 0; l < model_size; l++)
-            {
-                bool is_undefined_state = is_incorrect_state(for_decomposed_models[l].get_block_state());
-
-                if (is_undefined_state)
-                {
-                    break;
-                }
-
-                return_blocks[k] = for_decomposed_models[l];
-                k++;
-            }
-
-            //ループ関係の変数値初期化
-            loop_count = 0;
-            j = 0;
-            memset(for_decomposed_models, '\0', model_size);
-        }
-        else if (is_loop_now)
-        {
-            range_for_blocks[j] = block_models[i];
-            j++;
-        }
-        else
-        {
-            return_blocks[k] = block_models[i];
-            k++;
-        }
-    }
-
-    memset(range_for_blocks, '\0', model_size);
-    memset(block_models, '\0', model_size);
-}
-
-//forスタートとforエンドブロックの間のループ対象block_modelsを投げて、ループ回数分つなげたblock_modelsを返す
-void for_judge(BlockModel return_blocks[50], BlockModel block_models[50], int loop_count)
-{
-    int model_size = 50;
-    return_blocks[model_size] = {};
-    int i = 0; //return_blocks のインデックス
-
-    for (int count = 0; count < loop_count; count++)
-    {
-        for (int j = 0; j < model_size; j++)
-        {
-            bool is_undefined_state = is_incorrect_state(block_models[j].get_block_state());
-
-            if (is_undefined_state)
-            {
-                break;
-            }
-
-            return_blocks[i] = block_models[j];
-            i++;
-        }
-    }
-}
-
-// block_modelsの中身のコマンドを順次モーター駆動処理しながら、途中にifブロックがあれば随時解釈処理を実行してモーター駆動処理を行う
-void run_models(BlockModel block_models[50])
-{
-    int model_size = 50;
-    BlockModel range_if_blocks[model_size] = {};
-    int j = 0; // range_if_blocks のインデックス
-    bool is_if_now = false;
-
-    for (int i = 0; i < model_size; i++)
-    {
-        bool is_undefined_state = is_incorrect_state(block_models[i].get_block_state());
-        bool is_if_start = block_models[i].get_block_state() == 7;
-        bool is_if_end = block_models[i].get_block_state() == 8;
-
-        if (is_undefined_state)
-        {
-            break;
-        }
-        else if (is_if_start)
-        {
-            is_if_now = true;
-            range_if_blocks[j] = block_models[i];
-            j++;
-        }
-        else if (is_if_end) //全体のblock_modelsから、ifスタートブロックからifエンドブロックのブロックを抜き出して分解する
-        {
-            is_if_now = false;
-            range_if_blocks[j] = block_models[i];
-            BlockModel if_decomposed_models[model_size] = {};
-
-            if_judge(if_decomposed_models, range_if_blocks);
-
-            for (int k = 0; k < model_size; k++)
-            {
-                bool is_undefined_state = is_incorrect_state(if_decomposed_models[k].get_block_state());
-
-                if (is_undefined_state)
-                {
-                    break;
-                }
-
-                motor.run_motor(if_decomposed_models[k]);
-            }
-
-            //if関係の変数値初期化
-            j = 0;
-            memset(if_decomposed_models, '\0', model_size);
-        }
-        else if (is_if_now)
-        {
-            range_if_blocks[j] = block_models[i];
-            j++;
-        }
-        else
-        {
-            motor.run_motor(block_models[i]);
-        }
-    }
-
-    memset(range_if_blocks, '\0', model_size);
-    memset(block_models, '\0', model_size);
-}
-
-//ifスタートブロックからifエンドブロックまでのblock_modelsを投げて、センサー値の結果に基づいて適切なblock_modelsを返す
-void if_judge(BlockModel return_blocks[50], BlockModel block_models[50])
-{
-    int model_size = 50;
-    return_blocks[model_size] = {};
-    BlockModel true_blocks[model_size] = {};
-    int true_count = 0;
-    BlockModel false_blocks[model_size] = {};
-    int false_count = 0;
-    for (int i = 1; i < model_size; i++)
-    {
-        bool is_undefined_state = is_incorrect_state(block_models[i].get_block_state());
-        bool is_if_end = block_models[i].get_block_state() == 8;
-        bool is_true_models = (100 < block_models[i].get_block_state() && block_models[i].get_block_state() < 200);
-        bool is_false_models = (200 < block_models[i].get_block_state() && block_models[i].get_block_state() < 300);
-
-        if (is_undefined_state)
-        {
-            break;
-        }
-        else if (is_true_models)
-        {
-            true_blocks[true_count] = block_models[i];
-            true_blocks[true_count] = block_state_change(true_blocks[true_count]);
-
-            true_count++;
-        }
-        else if (is_false_models)
-        {
-            false_blocks[false_count] = block_models[i];
-            false_blocks[false_count] = block_state_change(false_blocks[false_count]);
-
-            false_count++;
-        }
-    }
-
-    //センサー値取得
-    Serial.print("sensor value ");
-    Serial.println(sensor.getDistance());
-
-    if (block_models[0].get_if_comparison() == 1)
-    {
-        if (block_models[0].get_if_threshold() < sensor.getDistance())
-        {
-            for (int j = 0; j <= true_count; j++)
-            {
-                bool is_undefined_state = is_incorrect_state(true_blocks[j].get_block_state());
-                if (is_undefined_state)
-                {
-                    break;
-                }
-
-                return_blocks[j] = true_blocks[j];
-            }
-            memset(block_models, '\0', model_size);
-            memset(true_blocks, '\0', model_size);
-            memset(false_blocks, '\0', model_size);
-            return;
-        }
-        else
-        {
-            for (int j = 0; j <= false_count; j++)
-            {
-                bool is_undefined_state = is_incorrect_state(false_blocks[j].get_block_state());
-                if (is_undefined_state)
-                {
-                    break;
-                }
-
-                return_blocks[j] = false_blocks[j];
-            }
-            memset(block_models, '\0', model_size);
-            memset(true_blocks, '\0', model_size);
-            memset(false_blocks, '\0', model_size);
-            return;
-        }
-    }
-    else if (block_models[0].get_if_comparison() == 2)
-    {
-        if (block_models[0].get_if_threshold() > sensor.getDistance())
-        {
-            for (int j = 0; j <= true_count; j++)
-            {
-                bool is_undefined_state = is_incorrect_state(true_blocks[j].get_block_state());
-                if (is_undefined_state)
-                {
-                    break;
-                }
-
-                return_blocks[j] = true_blocks[j];
-            }
-            memset(block_models, '\0', model_size);
-            memset(true_blocks, '\0', model_size);
-            memset(false_blocks, '\0', model_size);
-            return;
-        }
-        else
-        {
-            for (int j = 0; j <= false_count; j++)
-            {
-                bool is_undefined_state = is_incorrect_state(false_blocks[j].get_block_state());
-                if (is_undefined_state)
-                {
-                    break;
-                }
-
-                return_blocks[j] = false_blocks[j];
-            }
-            memset(block_models, '\0', model_size);
-            memset(true_blocks, '\0', model_size);
-            memset(false_blocks, '\0', model_size);
-            return;
-        }
     }
 }
 
@@ -554,4 +281,278 @@ bool is_incorrect_state(int state_num)
     }
 
     return is_undefined;
+}
+
+void execute_command(BlockModel block_models[50])
+{
+    int model_size = 50;
+
+    for (int i = 0; i < model_size; i++)
+    {
+        bool is_undefined_state = is_incorrect_state(block_models[i].get_block_state());
+        bool is_loop_start = (block_models[i].get_block_state() == 5);
+        bool is_if_start = block_models[i].get_block_state() == 7;
+
+        if (is_undefined_state)
+        {
+            break;
+        }
+        else if (is_loop_start)
+        {
+            //BUG breakを使用した際にここから無限ループが起きている
+            int loop_start_index = i + 1;  //ループスタートブロックの次のブロックのindex
+            int loop_count = block_models[i].get_loop_count();
+            int loop_end_index = find_loop_scope(block_models, loop_start_index, loop_count);
+            i = loop_end_index;
+        }
+        else if (is_if_start)
+        {
+            int if_start_index = i;
+            int if_end_index = find_if_scope(block_models, if_start_index);
+            i = if_end_index;
+        }
+        else
+        {
+            motor.run_motor(block_models[i]);
+        }
+    }
+}
+
+int find_loop_scope(BlockModel block_models[50], int loop_start_index, int loop_count)
+{
+    int model_size = 50;
+    BlockModel range_loop_blocks[model_size] = {};
+    int j = 0; //range_loop_blocksのindex管理値
+
+    for (int i = loop_start_index; i < model_size; i++)
+    {
+        bool is_undefined_state = is_incorrect_state(block_models[i].get_block_state());
+        bool is_loop_end = (block_models[i].get_block_state() == 6 || block_models[i].get_block_state() == 106 || block_models[i].get_block_state() == 206);
+
+        if (is_undefined_state)
+        {
+            break;
+        }
+        else if (is_loop_end)
+        {
+            int loop_end_index = i;
+            execute_loop_command(range_loop_blocks, loop_count);
+
+            memset(range_loop_blocks, '\0', model_size);
+            return loop_end_index;
+        }
+        else
+        {
+            range_loop_blocks[j] = block_models[i];
+            j++;
+        }
+    }
+
+    return 0;
+}
+
+void execute_loop_command(BlockModel range_loop_blocks[50], int loop_count)
+{
+    int model_size = 50;
+
+    for (int i = 0; i < loop_count; i++)
+    {
+        for (int j = 0; j < model_size; j++)
+        {
+            bool is_undefined_state = is_incorrect_state(range_loop_blocks[j].get_block_state());
+            bool is_if_start = (range_loop_blocks[j].get_block_state() == 7 || range_loop_blocks[j].get_block_state() == 107 || range_loop_blocks[j].get_block_state() == 207);
+
+            if (is_undefined_state)
+            {
+                break;
+            }
+            else if (is_if_start)
+            {
+                int if_start_index = j;
+                int if_end_index = find_if_scope(range_loop_blocks, if_start_index);
+                if(if_end_index == 0)
+                {
+                    return; //breakなら関数処理終了
+                }
+                j = if_end_index;
+            }
+            else
+            {
+                motor.run_motor(range_loop_blocks[j]);
+            }
+        }
+    }
+}
+
+int find_if_scope(BlockModel block_models[50], int if_start_index)
+{
+    int model_size = 50;
+    BlockModel true_blocks[model_size] = {};
+    int true_count = 0;
+    BlockModel false_blocks[model_size] = {};
+    int false_count = 0;
+    int if_end_index = 0;
+
+    for (int i = if_start_index + 1; i < model_size; i++)
+    {
+        bool is_undefined_state = is_incorrect_state(block_models[i].get_block_state());
+        bool is_if_end = block_models[i].get_block_state() == 8;
+        bool is_true_models = (100 < block_models[i].get_block_state() && block_models[i].get_block_state() < 200);
+        bool is_false_models = (200 < block_models[i].get_block_state() && block_models[i].get_block_state() < 300);
+
+        if (is_undefined_state)
+        {
+            break;
+        }
+        else if (is_if_end)
+        {
+            if_end_index = i;
+        }
+        else if (is_true_models)
+        {
+            true_blocks[true_count] = block_models[i];
+            true_blocks[true_count] = block_state_change(true_blocks[true_count]);
+
+            true_count++;
+        }
+        else if (is_false_models)
+        {
+            false_blocks[false_count] = block_models[i];
+            false_blocks[false_count] = block_state_change(false_blocks[false_count]);
+
+            false_count++;
+        }
+    }
+
+    if (block_models[if_start_index].get_if_comparison() == 1)
+    {
+        if (block_models[if_start_index].get_if_threshold() < sensor.getDistance())
+        {
+            for (int j = 0; j <= true_count; j++)
+            {
+                bool is_undefined_state = is_incorrect_state(true_blocks[j].get_block_state());
+                bool is_loop_start = (true_blocks[j].get_block_state() == 5);
+                bool is_break = true_blocks[j].get_block_state() == 9;
+                if (is_undefined_state)
+                {
+                    break;
+                }
+                else if (is_break)
+                {
+                    return 0;
+                }
+                else if (is_loop_start)
+                {
+                    int loop_start_index = j + 1;
+                    int loop_count = true_blocks[j].get_loop_count();
+                    int loop_end_index = find_loop_scope(true_blocks, loop_start_index, loop_count);
+                    j = loop_end_index;
+                }
+                else
+                {
+                    motor.run_motor(true_blocks[j]);
+                }
+            }
+            memset(true_blocks, '\0', model_size);
+            memset(false_blocks, '\0', model_size);
+            return if_end_index;
+        }
+        else
+        {
+            for (int j = 0; j <= false_count; j++)
+            {
+                bool is_undefined_state = is_incorrect_state(false_blocks[j].get_block_state());
+                bool is_loop_start = (false_blocks[j].get_block_state() == 5);
+                bool is_break = false_blocks[j].get_block_state() == 9;
+                if (is_undefined_state)
+                {
+                    break;
+                }
+                else if (is_break)
+                {
+                    return 0;
+                }
+                else if (is_loop_start)
+                {
+                    int loop_start_index = j + 1;
+                    int loop_count = false_blocks[j].get_loop_count();
+                    int loop_end_index = find_loop_scope(false_blocks, loop_start_index, loop_count);
+                    j = loop_end_index;
+                }
+                else
+                {
+                    motor.run_motor(false_blocks[j]);
+                }
+            }
+            memset(true_blocks, '\0', model_size);
+            memset(false_blocks, '\0', model_size);
+            return if_end_index;
+        }
+    }
+    else if (block_models[if_start_index].get_if_comparison() == 2)
+    {
+        if (block_models[if_start_index].get_if_threshold() > sensor.getDistance())
+        {
+            for (int j = 0; j <= true_count; j++)
+            {
+                bool is_undefined_state = is_incorrect_state(true_blocks[j].get_block_state());
+                bool is_loop_start = (true_blocks[j].get_block_state() == 5);
+                bool is_break = true_blocks[j].get_block_state() == 9;
+                if (is_undefined_state)
+                {
+                    break;
+                }
+                else if (is_break)
+                {
+                    return 0;
+                }
+                else if (is_loop_start)
+                {
+                    int loop_start_index = j + 1;
+                    int loop_count = true_blocks[j].get_loop_count();
+                    int loop_end_index = find_loop_scope(true_blocks, loop_start_index, loop_count);
+                    j = loop_end_index;
+                }
+                else
+                {
+                    motor.run_motor(true_blocks[j]);
+                }
+            }
+            memset(true_blocks, '\0', model_size);
+            memset(false_blocks, '\0', model_size);
+            return if_end_index;
+        }
+        else
+        {
+            for (int j = 0; j <= false_count; j++)
+            {
+                bool is_undefined_state = is_incorrect_state(false_blocks[j].get_block_state());
+                bool is_loop_start = (false_blocks[j].get_block_state() == 5);
+                bool is_break = false_blocks[j].get_block_state() == 9;
+                if (is_undefined_state)
+                {
+                    break;
+                }
+                else if (is_break)
+                {
+                    return 0;
+                }
+                else if (is_loop_start)
+                {
+                    int loop_start_index = j + 1;
+                    int loop_count = false_blocks[j].get_loop_count();
+                    int loop_end_index = find_loop_scope(false_blocks, loop_start_index, loop_count);
+                    j = loop_end_index;
+                }
+                else
+                {
+                    motor.run_motor(false_blocks[j]);
+                }
+            }
+            memset(true_blocks, '\0', model_size);
+            memset(false_blocks, '\0', model_size);
+            return if_end_index;
+        }
+    }
+    return 0;
 }
