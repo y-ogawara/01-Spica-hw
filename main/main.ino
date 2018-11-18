@@ -81,7 +81,6 @@ int resistivityRead()
 {
     int PIN_NUM = 33;
     int reading = analogRead(PIN_NUM);
-    //Serial.println(reading);
     // MAX256の値で返す
     return reading / 128;
 }
@@ -371,7 +370,7 @@ void execute_loop_command(BlockModel range_loop_blocks[50], int loop_count)
             {
                 int if_start_index = j;
                 int if_end_index = find_if_scope(range_loop_blocks, if_start_index);
-                if(if_end_index == -1)
+                if(if_end_index == 0)
                 {
                     return; //breakなら関数処理終了
                 }
@@ -438,18 +437,16 @@ int find_if_scope(BlockModel block_models[50], int if_start_index)
                 {
                     break;
                 }
+                else if (is_break)
+                {
+                    return 0;
+                }
                 else if (is_loop_start)
                 {
                     int loop_start_index = j + 1;
                     int loop_count = true_blocks[j].get_loop_count();
                     int loop_end_index = find_loop_scope(true_blocks, loop_start_index, loop_count);
                     j = loop_end_index;
-                }
-                else if (is_break)
-                {
-                    Serial.println("break");
-                    if_end_index = -1;
-                    break;
                 }
                 else
                 {
@@ -471,18 +468,16 @@ int find_if_scope(BlockModel block_models[50], int if_start_index)
                 {
                     break;
                 }
+                else if (is_break)
+                {
+                    return 0;
+                }
                 else if (is_loop_start)
                 {
                     int loop_start_index = j + 1;
                     int loop_count = false_blocks[j].get_loop_count();
                     int loop_end_index = find_loop_scope(false_blocks, loop_start_index, loop_count);
                     j = loop_end_index;
-                }
-                else if (is_break)
-                {
-                    Serial.println("break");
-                    if_end_index = -1;
-                    break;
                 }
                 else
                 {
@@ -507,18 +502,16 @@ int find_if_scope(BlockModel block_models[50], int if_start_index)
                 {
                     break;
                 }
+                else if (is_break)
+                {
+                    return 0;
+                }
                 else if (is_loop_start)
                 {
                     int loop_start_index = j + 1;
                     int loop_count = true_blocks[j].get_loop_count();
                     int loop_end_index = find_loop_scope(true_blocks, loop_start_index, loop_count);
                     j = loop_end_index;
-                }
-                else if (is_break)
-                {
-                    Serial.println("break");
-                    if_end_index = -1;
-                    break;
                 }
                 else
                 {
@@ -540,18 +533,16 @@ int find_if_scope(BlockModel block_models[50], int if_start_index)
                 {
                     break;
                 }
+                else if (is_break)
+                {
+                    return 0;
+                }
                 else if (is_loop_start)
                 {
                     int loop_start_index = j + 1;
                     int loop_count = false_blocks[j].get_loop_count();
                     int loop_end_index = find_loop_scope(false_blocks, loop_start_index, loop_count);
                     j = loop_end_index;
-                }
-                else if (is_break)
-                {
-                    Serial.println("break");
-                    if_end_index = -1;
-                    break;
                 }
                 else
                 {
