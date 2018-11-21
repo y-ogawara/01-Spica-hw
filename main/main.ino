@@ -8,7 +8,7 @@ Motor motor;
 Udp udp;
 Sensor sensor;
 
-char ssid[] = "robop-WiFi-n";
+char ssid[] = "ERS-AP";
 char password[] = "robop0304";
 IPAddress local_IP(192, 168, 1, 101); // 下3桁を101から機体ごとに連番で指定
 IPAddress gateway(192, 168, 1, 1);

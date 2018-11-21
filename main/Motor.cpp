@@ -15,8 +15,8 @@ Motor::Motor()
     ledcSetup(CHANNEL_3, LEDC_BASE_FREQ, LEDC_TIMER_BIT);
 
     // ピンのチャンネルをセット
-    ledcAttachPin(IN4, CHANNEL_0);
-    ledcAttachPin(IN3, CHANNEL_1);
+    ledcAttachPin(IN3, CHANNEL_0);
+    ledcAttachPin(IN4, CHANNEL_1);
     ledcAttachPin(IN2, CHANNEL_2);
     ledcAttachPin(IN1, CHANNEL_3);
 
@@ -60,6 +60,7 @@ void Motor::run_motor(BlockModel blockModel) //int state, uint32_t left_pwm, uin
 
 void Motor::forward(uint32_t left_pwm, uint32_t right_pwm)
 { 
+    Serial.println("前進");
     if (left_pwm > VALUE_MAX)
     {
         left_pwm = VALUE_MAX;
@@ -76,7 +77,8 @@ void Motor::forward(uint32_t left_pwm, uint32_t right_pwm)
 }
 
 void Motor::back(uint32_t left_pwm, uint32_t right_pwm)
-{ 
+{
+    Serial.println("後退");
     if (left_pwm > VALUE_MAX)
     {
         left_pwm = VALUE_MAX;
@@ -93,7 +95,8 @@ void Motor::back(uint32_t left_pwm, uint32_t right_pwm)
 }
 
 void Motor::right(uint32_t pwm)
-{ 
+{
+    Serial.println("右回転");
     if (pwm > VALUE_MAX)
     {
         pwm = VALUE_MAX;
@@ -105,7 +108,8 @@ void Motor::right(uint32_t pwm)
 }
 
 void Motor::left(uint32_t pwm)
-{ 
+{
+    Serial.println("左回転");
     if (pwm > VALUE_MAX)
     {
         pwm = VALUE_MAX;
