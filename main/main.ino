@@ -4,6 +4,8 @@
 #include "BlockModel.h"
 #include "esp_system.h"
 
+#define BREAK 100
+
 Motor motor;
 Udp udp;
 Sensor sensor;
@@ -372,7 +374,7 @@ void execute_loop_command(BlockModel range_loop_blocks[50], int loop_count)
             {
                 int if_start_index = j;
                 int if_end_index = find_if_scope(range_loop_blocks, if_start_index);
-                if(if_end_index == 0)
+                if(if_end_index == BREAK)
                 {
                     return; //breakなら関数処理終了
                 }
@@ -441,7 +443,7 @@ int find_if_scope(BlockModel block_models[50], int if_start_index)
                 }
                 else if (is_break)
                 {
-                    return 0;
+                    return BREAK;
                 }
                 else if (is_loop_start)
                 {
@@ -472,7 +474,7 @@ int find_if_scope(BlockModel block_models[50], int if_start_index)
                 }
                 else if (is_break)
                 {
-                    return 0;
+                    return BREAK;
                 }
                 else if (is_loop_start)
                 {
@@ -506,7 +508,7 @@ int find_if_scope(BlockModel block_models[50], int if_start_index)
                 }
                 else if (is_break)
                 {
-                    return 0;
+                    return BREAK;
                 }
                 else if (is_loop_start)
                 {
@@ -537,7 +539,7 @@ int find_if_scope(BlockModel block_models[50], int if_start_index)
                 }
                 else if (is_break)
                 {
-                    return 0;
+                    return BREAK;
                 }
                 else if (is_loop_start)
                 {
