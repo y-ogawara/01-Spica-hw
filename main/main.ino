@@ -74,6 +74,8 @@ void loop()
         Serial.println("Done");
         char sendText[] = "Done";
         udp.send_data(udp.get_remote_ip(), sendText);
+
+        motor.coast();
     }
 }
 
