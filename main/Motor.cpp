@@ -56,6 +56,7 @@ void Motor::run_motor(BlockModel blockModel) //int state, uint32_t left_pwm, uin
     delay(200);
     brake();
     delay(400);
+    coast();
 }
 
 void Motor::forward(uint32_t left_pwm, uint32_t right_pwm)
