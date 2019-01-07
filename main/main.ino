@@ -81,8 +81,7 @@ void loop()
     }
 }
 
-int resistivityRead()
-{
+int resistivityRead() {
     int PIN_NUM = 35;
     int reading = analogRead(PIN_NUM);
     // MAX256の値で返す
@@ -90,49 +89,22 @@ int resistivityRead()
 }
 
 // flagは1を入れると左モーター,2で右モーターの値を返す
-int generateSpeed(int flag, int app_speed)
-{
+int generateSpeed(int flag, int app_speed) {
     int resistivity_num = resistivityRead();
     int left_num = 16 - resistivity_num;
     int right_num = resistivity_num - 16;
     // -の値だったら0にする
-    if (left_num < 0)
-    {
+    if (left_num < 0) {
         left_num = 0;
     }
-    if (right_num < 0)
-    {
+    if (right_num < 0) {
         right_num = 0;
     }
-    if (flag == 1)
-    {
-        switch (app_speed)
-        {
-        // 最低速度
-        case 1:
-            return MOTOR_POWER_LOW + left_num;
-        // 真ん中
-        case 2:
-            return MOTOR_POWER_MIDDLE + left_num;
-        // 最速
-        case 3:
-            return MOTOR_POWER_HIGH + left_num;
-        }
+    if (flag == 1) {
+        return app_speed + left_num;
     }
-    else if (flag == 2)
-    {
-        switch (app_speed)
-        {
-        // 最低速度
-        case 1:
-            return MOTOR_POWER_LOW + right_num;
-        // 真ん中
-        case 2:
-            return MOTOR_POWER_MIDDLE + right_num;
-        // 最速
-        case 3:
-            return MOTOR_POWER_HIGH + right_num;
-        }
+    else if (flag == 2) {
+        return app_speed + right_num;
     }
     return 0;
 }
