@@ -3,14 +3,13 @@
 
 #include "Arduino.h"
 
-class Sensor
-{
-  private:
-    //TODO 使うピンの定義
+class Sensor {
+ private:
+  // TODO 使うピンの定義
 
-    public:
-    Sensor();
-    float getDistance();
+ public:
+  Sensor();
+  float getDistance();
 };
 
 #endif

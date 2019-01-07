@@ -4,9 +4,8 @@
 #include "Arduino.h"
 #include "BlockModel.h"
 
-class Motor
-{
-private:
+class Motor {
+ private:
   // 使うピンの定義
   int IN1 = 25;
   int IN2 = 33;
@@ -19,11 +18,11 @@ private:
   int CHANNEL_2 = 2;
   int CHANNEL_3 = 3;
 
-  int LEDC_TIMER_BIT = 8;   // PWMの範囲(8bitなら0〜255、10bitなら0〜1023)
-  int LEDC_BASE_FREQ = 1000; // 周波数(Hz)
-  int VALUE_MAX = 255;      // PWMの最大値
+  int LEDC_TIMER_BIT = 8;  // PWMの範囲(8bitなら0〜255、10bitなら0〜1023)
+  int LEDC_BASE_FREQ = 1000;  // 周波数(Hz)
+  int VALUE_MAX = 255;        // PWMの最大値
 
-public:
+ public:
   Motor();
   void run_motor(BlockModel blockModel);
   void forward(uint32_t left_pwm, uint32_t right_pwm);

@@ -3,15 +3,14 @@
 
 #include "Arduino.h"
 
-class BlockModel
-{
-private:
+class BlockModel {
+ private:
   int block_state;
   int left_speed;
   int right_speed;
   int time;
 
-public:
+ public:
   BlockModel();
   BlockModel(int block_state, int right_speed, int left_speed, int time);
   int get_block_state();
