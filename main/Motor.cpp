@@ -15,10 +15,10 @@ Motor::Motor()
     ledcSetup(CHANNEL_3, LEDC_BASE_FREQ, LEDC_TIMER_BIT);
 
     // ピンのチャンネルをセット
-    ledcAttachPin(IN3, CHANNEL_0);
-    ledcAttachPin(IN4, CHANNEL_1);
-    ledcAttachPin(IN2, CHANNEL_2);
-    ledcAttachPin(IN1, CHANNEL_3);
+    ledcAttachPin(IN1, CHANNEL_0);
+    ledcAttachPin(IN2, CHANNEL_1);
+    ledcAttachPin(IN3, CHANNEL_2);
+    ledcAttachPin(IN4, CHANNEL_3);
 
     delay(100);
 }

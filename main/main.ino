@@ -83,7 +83,7 @@ void loop()
 
 int resistivityRead()
 {
-    int PIN_NUM = 33;
+    int PIN_NUM = 35;
     int reading = analogRead(PIN_NUM);
     // MAX256の値で返す
     return reading / 128;

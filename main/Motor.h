@@ -9,9 +9,9 @@ class Motor
 private:
   // 使うピンの定義
   int IN1 = 25;
-  int IN2 = 26;
-  int IN3 = 16;
-  int IN4 = 17;
+  int IN2 = 33;
+  int IN3 = 27;
+  int IN4 = 26;
 
   // チャンネルの定義
   int CHANNEL_0 = 0;
