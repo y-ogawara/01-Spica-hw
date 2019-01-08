@@ -11,7 +11,7 @@ Led::Led() {
 void Led::green_led_flash(int pattern) {
   switch (pattern) {
     case 1:
-      for (int i = 0; i < 10; i++) {
+      for (int i = 0; i < 4; i++) {
         green_led_on();
         delay(100);
         green_led_off();
@@ -32,6 +32,12 @@ void Led::green_led_flash(int pattern) {
       green_led_off();
       break;
     case 4:
+      for (int i = 0; i < 4; i++) {
+        green_led_on();
+        delay(50);
+        green_led_off();
+        delay(50);
+      }
       break;
   }
 }
@@ -59,7 +65,12 @@ void Led::red_led_flash(int pattern) {
       red_led_off();
       break;
     case 4:
-
+      for (int i = 0; i < 4; i++) {
+        red_led_on();
+        delay(50);
+        red_led_off();
+        delay(50);
+      }
       break;
   }
 }
