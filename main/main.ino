@@ -4,6 +4,7 @@
 #include "Udp.h"
 #include "esp_system.h"
 #include "Led.h"
+#include "Buzzer.h"
 
 #define BREAK 100
 
@@ -11,6 +12,7 @@ Motor motor;
 Udp udp;
 Sensor sensor;
 Led led;
+Buzzer buzzer;
 
 char ssid[] = "ERS-AP";
 char password[] = "robop0304";
@@ -38,13 +40,13 @@ void setup() {
 
   Serial.println("setup start!");
   xTaskCreate(reboot_task, "reboot_task", 1024, NULL, 1, NULL);
-
-  // Wifi設定
-  udp.setup_udp(ssid, password, local_IP, gateway, subnet);
-
   motor = Motor();
   sensor = Sensor();
   led = Led();
+  buzzer = Buzzer();
+
+  // Wifi設定
+  udp.setup_udp(ssid, password, local_IP, gateway, subnet);
 }
 
 void loop() {
