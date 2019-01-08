@@ -3,12 +3,14 @@
 #include "Sensor.h"
 #include "Udp.h"
 #include "esp_system.h"
+#include "Led.h"
 
 #define BREAK 100
 
 Motor motor;
 Udp udp;
 Sensor sensor;
+Led led;
 
 char ssid[] = "ERS-AP";
 char password[] = "robop0304";
@@ -42,6 +44,7 @@ void setup() {
 
   motor = Motor();
   sensor = Sensor();
+  led = Led();
 }
 
 void loop() {
