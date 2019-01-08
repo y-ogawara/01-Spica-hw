@@ -2,6 +2,7 @@
 #include <WiFi.h>
 #include <WiFiUdp.h>
 #include "Arduino.h"
+#include "Led.h"
 
 Udp::Udp() {}
 
@@ -20,6 +21,8 @@ void Udp::setup_udp(char ssid[], char password[], IPAddress local_ip,
   }
   Serial.println(" connected");
   Serial.println(WiFi.localIP());
+  Led led = Led();
+  led.green_led_flash(1);
 
   Serial.println("Starting UDP");
   wifi_udp.begin(local_port);  // UDP通信の開始(引数はポート番号)
@@ -34,11 +37,13 @@ void Udp::recieve_packet() {
     // UDP情報の表示
     Serial.print("Received packet of size ");
     Serial.println(packet_size);
-
+    Led led = Led();
+    led.green_led_flash(4);
     // 実際にパケットを読む
     wifi_udp.read(packet_buffer, UDP_TX_PACKET_MAX_SIZE);
     Serial.println("Contents:");
     Serial.println(packet_buffer);
+    
   }
 }
 
@@ -59,6 +64,10 @@ void Udp::send_data(IPAddress remote_ip, char text[]) {
   wifi_udp.printf(text);
   wifi_udp.endPacket();
 }
-void Udp::disconnect() { WiFi.disconnect(); }
+void Udp::disconnect() {
+  WiFi.disconnect();
+  Led led = Led();
+  led.red_led_flash(1);
+}
 
 IPAddress Udp::get_remote_ip() { return wifi_udp.remoteIP(); }
